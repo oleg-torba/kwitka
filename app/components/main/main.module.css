@@ -1,0 +1,155 @@
+.head {
+  display: flex;
+  justify-content: center;
+}
+.img {
+  width: 100px;
+  height: 100px;
+}
+
+.list {
+  display: flex;
+}
+
+.certificateTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.certificateTable th,
+.certificateTable td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.certificateTable th {
+  background-color: darkslategray;
+  font-weight: bold;
+}
+
+.certificateTable img {
+  max-width: 100px;
+  height: auto;
+}
+
+.certificateTable button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.certificateTable button:hover {
+  background-color: #45a049;
+}
+
+/* Стилі для модального вікна */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Тінь для фону */
+  z-index: 1000; /* Модальне вікно поверх всього */
+  animation: fadeIn 0.3s ease-in-out; /* Анімація для появи модалки */
+}
+
+/* Анімація для модального вікна */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  background-color: black;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  position: relative; /* Для розміщення кнопки закриття */
+  animation: scaleUp 0.3s ease-in-out; /* Анімація для контенту */
+}
+
+/* Анімація для контенту */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 30px;
+  cursor: pointer;
+  color: white;
+}
+
+.searchForm {
+  margin-bottom: 20px;
+  display: flex;
+  margin-top: 25px;
+  margin-bottom: 25px;
+  justify-content: space-between;
+}
+
+.searchForm input {
+  padding: 8px;
+  width: 200px;
+}
+
+.searchForm button {
+  padding: 8px 16px;
+}
+.container {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.newBtn {
+  cursor: pointer;
+
+  background-color: green;
+  color: white;
+  font-weight: 500;
+  border-radius: 5px;
+}
+
+.filterInput {
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid white;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.filterInput:last-child {
+  margin-right: 0;
+}
+
+.clear {
+  cursor: pointer;
+
+  background-color: lightgray;
+  color: black;
+  font-weight: 500;
+  border-radius: 5px;
+  margin-left: 10px;
+}
