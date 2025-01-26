@@ -1,5 +1,9 @@
-module.exports = {
-  output: "export",
-  basePath: "/kwitka",
-  assetPrefix: "/kwitka/",
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    appDir: true,
+  },
 };
+
+export default nextConfig;
