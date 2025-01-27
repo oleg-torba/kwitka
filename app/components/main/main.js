@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import styles from "./main.module.css";
 import axios from "axios";
 import UploadCertificate from "../form/addCertificateForm";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Header = () => {
   const [certificates, setCertificates] = useState([]);
@@ -15,7 +17,7 @@ const Header = () => {
     repairNumber: "",
     certificateNumber: "",
     brand: "",
-    saleDate: "",
+    saleDate: null,
   });
 
   useEffect(() => {
@@ -23,7 +25,7 @@ const Header = () => {
       try {
         const response = await axios.get("/api/warranty");
         setCertificates(response.data);
-        setFilteredCertificates(response.data); // Зберігаємо всі сертифікати для фільтрації
+        setFilteredCertificates(response.data);
         setLoading(false);
       } catch (err) {
         setError("Не вдалося завантажити сертифікати.");
@@ -33,6 +35,45 @@ const Header = () => {
 
     fetchCertificates();
   }, []);
+
+  // Фільтрація сертифікатів
+  useEffect(() => {
+    let filtered = certificates;
+
+    // Фільтрація за номером ремонту
+    if (searchParams.repairNumber) {
+      filtered = filtered.filter((cert) =>
+        cert.repairNumber
+          .toLowerCase()
+          .includes(searchParams.repairNumber.toLowerCase())
+      );
+    }
+
+    // Фільтрація за номером сертифікату
+    if (searchParams.certificateNumber) {
+      filtered = filtered.filter((cert) =>
+        cert.certificateNumber
+          .toLowerCase()
+          .includes(searchParams.certificateNumber.toLowerCase())
+      );
+    }
+
+    // Фільтрація за брендом
+    if (searchParams.brand) {
+      filtered = filtered.filter((cert) =>
+        cert.brand.toLowerCase().includes(searchParams.brand.toLowerCase())
+      );
+    }
+
+    // Фільтрація за датою продажу
+    if (searchParams.saleDate) {
+      filtered = filtered.filter(
+        (cert) => cert.saleDate && cert.saleDate.includes(searchParams.saleDate)
+      );
+    }
+
+    setFilteredCertificates(filtered);
+  }, [searchParams, certificates]);
 
   const handleFormSubmit = async (newCertificate) => {
     try {
@@ -59,32 +100,6 @@ const Header = () => {
     }));
   };
 
-  const handleSearch = () => {
-    const { repairNumber, certificateNumber, brand, saleDate } = searchParams;
-    const filtered = certificates.filter((cert) => {
-      return (
-        (repairNumber ? cert.repairNumber.includes(repairNumber) : true) &&
-        (certificateNumber
-          ? cert.certificateNumber.includes(certificateNumber)
-          : true) &&
-        (brand ? cert.brand.includes(brand) : true) &&
-        (saleDate ? cert.saleDate.includes(saleDate) : true)
-      );
-    });
-    setFilteredCertificates(filtered);
-  };
-
-  // Функція для скидання фільтра
-  const handleResetFilter = () => {
-    setSearchParams({
-      repairNumber: "",
-      certificateNumber: "",
-      brand: "",
-      saleDate: "",
-    });
-    setFilteredCertificates(certificates); // Відновлюємо всі сертифікати
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("uk-UA", {
@@ -94,9 +109,8 @@ const Header = () => {
     });
   };
 
-  // Функція для перенаправлення на PDF
   const redirectToPDF = (pdfUrl) => {
-    window.open(pdfUrl, "_blank"); // Відкриває PDF у новій вкладці
+    window.open(pdfUrl, "_blank");
   };
 
   return (
@@ -105,14 +119,10 @@ const Header = () => {
         <h1>Звіт по гарантійних ремонтах </h1>
       </div>
 
-      {/* Модальне вікно */}
       {showForm && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
-            <span
-              className={styles.close}
-              onClick={() => setShowForm(false)} // Закрити модальне вікно
-            >
+            <span className={styles.close} onClick={() => setShowForm(false)}>
               &times;
             </span>
             <UploadCertificate onSubmit={handleFormSubmit} />
@@ -127,7 +137,7 @@ const Header = () => {
               Додати новий
             </button>
           </div>
-          <div>
+          <div className={styles.searchBlock}>
             <input
               className={styles.filterInput}
               type="text"
@@ -144,28 +154,26 @@ const Header = () => {
               value={searchParams.certificateNumber}
               onChange={handleSearchChange}
             />
-            <input
+            <select
               className={styles.filterInput}
-              type="text"
               name="brand"
-              placeholder="Бренд"
               value={searchParams.brand}
               onChange={handleSearchChange}
-            />
+            >
+              <option value="">Виберіть бренд</option>
+              <option value="Bosch">Bosch</option>
+              <option value="Makita">Makita</option>
+              <option value="Metabo">Metabo</option>
+              <option value="Oleo-Mac">Oleo-Mac</option>
+            </select>
+
             <input
               className={styles.filterInput}
               type="date"
               name="saleDate"
-              value={searchParams.saleDate}
+              value={searchParams.saleDate || ""}
               onChange={handleSearchChange}
             />
-            <button className={styles.newBtn} onClick={handleSearch}>
-              Пошук
-            </button>
-            <button className={styles.clear} onClick={handleResetFilter}>
-              Скинути фільтр
-            </button>{" "}
-            {/* Кнопка для скидання фільтру */}
           </div>
         </div>
 
@@ -177,13 +185,13 @@ const Header = () => {
             {filteredCertificates.length > 0 ? (
               <table className={styles.certificateTable}>
                 <thead>
-                  <tr>
+                  <tr className={styles.tableTitle}>
                     <th>Номер ремонту</th>
                     <th>Дата заповнення</th>
                     <th>Гарантійний талон</th>
                     <th>Дата продажу</th>
                     <th>Менеджер</th>
-                    <th>Бренд</th> {/* Додано бренд */}
+                    <th>Бренд</th>
                     <th>Дії</th>
                   </tr>
                 </thead>
@@ -191,14 +199,14 @@ const Header = () => {
                   {filteredCertificates.map((cert) => (
                     <tr key={cert.id}>
                       <td>{cert.repairNumber}</td>
-                      <td>{cert.createdAt}</td>
+                      <td>{formatDate(cert.createdAt)}</td>
                       <td>{cert.certificateNumber}</td>
                       <td>{formatDate(cert.saleDate)}</td>
                       <td>{cert.manager}</td>
-                      <td>{cert.brand}</td> {/* Виведення бренду */}
+                      <td>{cert.brand}</td>
                       <td>
                         <span
-                          style={{ cursor: "pointer", color: "blue" }}
+                          className={styles.pdfLink}
                           onClick={() => redirectToPDF(cert.imageUrl)}
                         >
                           Завантажити PDF

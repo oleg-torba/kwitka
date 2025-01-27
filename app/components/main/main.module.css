@@ -15,12 +15,15 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  font-size: 14px;
+  transition: 0.5s;
 }
 
 .certificateTable th,
 .certificateTable td {
   padding: 10px;
-  text-align: left;
+
+  text-align: center;
   border: 1px solid #ddd;
 }
 
@@ -47,7 +50,6 @@
   background-color: #45a049;
 }
 
-/* Стилі для модального вікна */
 .modal {
   display: flex;
   justify-content: center;
@@ -57,12 +59,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Тінь для фону */
-  z-index: 1000; /* Модальне вікно поверх всього */
-  animation: fadeIn 0.3s ease-in-out; /* Анімація для появи модалки */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Анімація для модального вікна */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -78,11 +79,10 @@
   border-radius: 8px;
   width: 80%;
   max-width: 500px;
-  position: relative; /* Для розміщення кнопки закриття */
-  animation: scaleUp 0.3s ease-in-out; /* Анімація для контенту */
+  position: relative;
+  animation: scaleUp 0.3s ease-in-out;
 }
 
-/* Анімація для контенту */
 @keyframes scaleUp {
   from {
     transform: scale(0.8);
@@ -107,11 +107,7 @@
   margin-top: 25px;
   margin-bottom: 25px;
   justify-content: space-between;
-}
-
-.searchForm input {
-  padding: 8px;
-  width: 200px;
+  align-items: center;
 }
 
 .searchForm button {
@@ -135,9 +131,31 @@
 
 .filterInput {
   background-color: rgba(0, 0, 0, 0);
-  border: 1px solid white;
+  appearance: none;
+  color: white;
   border-radius: 5px;
   margin-right: 10px;
+  border: 0.5px solid #ccc;
+  height: 30px;
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  min-width: 120px;
+}
+
+.filterInput::placeholder {
+  color: white;
+  opacity: 0.5;
+}
+.filterInput[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #fff;
+  border-radius: 50%;
+  padding: 3px;
+}
+.filterInput option {
+  background-color: black;
+  opacity: 0.5;
+  font-size: 12px;
 }
 
 .filterInput:last-child {
@@ -152,4 +170,18 @@
   font-weight: 500;
   border-radius: 5px;
   margin-left: 10px;
+}
+
+.searchBlock {
+  display: flex;
+  align-items: center;
+}
+.pdfLink {
+  color: green;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pdfLink:hover {
+  color: lightgreen;
 }
