@@ -206,7 +206,7 @@ const Header = () => {
                       <td>{cert.brand}</td>
                       <td>
                         <span
-                          className={styles.pdfLink}
+                          style={{ cursor: "pointer", color: "blue" }}
                           onClick={() => redirectToPDF(cert.imageUrl)}
                         >
                           Завантажити PDF
