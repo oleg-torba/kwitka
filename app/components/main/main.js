@@ -18,6 +18,7 @@ const Header = () => {
     certificateNumber: "",
     brand: "",
     saleDate: null,
+    manager: "", // Додано нове поле для фільтру
   });
 
   useEffect(() => {
@@ -36,11 +37,9 @@ const Header = () => {
     fetchCertificates();
   }, []);
 
-  // Фільтрація сертифікатів
   useEffect(() => {
     let filtered = certificates;
 
-    // Фільтрація за номером ремонту
     if (searchParams.repairNumber) {
       filtered = filtered.filter((cert) =>
         cert.repairNumber
@@ -49,7 +48,6 @@ const Header = () => {
       );
     }
 
-    // Фільтрація за номером сертифікату
     if (searchParams.certificateNumber) {
       filtered = filtered.filter((cert) =>
         cert.certificateNumber
@@ -58,17 +56,22 @@ const Header = () => {
       );
     }
 
-    // Фільтрація за брендом
     if (searchParams.brand) {
       filtered = filtered.filter((cert) =>
         cert.brand.toLowerCase().includes(searchParams.brand.toLowerCase())
       );
     }
 
-    // Фільтрація за датою продажу
     if (searchParams.saleDate) {
       filtered = filtered.filter(
         (cert) => cert.saleDate && cert.saleDate.includes(searchParams.saleDate)
+      );
+    }
+
+    if (searchParams.manager) {
+      // Фільтрація по менеджеру
+      filtered = filtered.filter((cert) =>
+        cert.manager.toLowerCase().includes(searchParams.manager.toLowerCase())
       );
     }
 
@@ -77,19 +80,36 @@ const Header = () => {
 
   const handleFormSubmit = async (newCertificate) => {
     try {
-      const response = await axios.post("/api/warranty", newCertificate);
-      setCertificates((prevCertificates) => [
-        ...prevCertificates,
-        response.data,
-      ]);
-      setShowForm(false); // Сховати форму після додавання сертифікату
+      await axios.post("/api/warranty", newCertificate);
+      // Після додавання сертифікату оновлюємо список сертифікатів
+      const response = await axios.get("/api/warranty");
+      setCertificates(response.data);
+      setShowForm(false);
     } catch (err) {
       setError("Не вдалося додати сертифікат.");
     }
   };
 
+  const handleResolutionChange = async (id, newResolution) => {
+    try {
+      const response = await axios.put(`/api/warranty/${id}`, {
+        rezolution: newResolution,
+      });
+
+      if (response.status === 200) {
+        setCertificates((prevCertificates) =>
+          prevCertificates.map((cert) =>
+            cert._id === id ? { ...cert, rezolution: newResolution } : cert
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Не вдалося оновити рішення:", err);
+    }
+  };
+
   const handleAddCertificate = () => {
-    setShowForm(true); // Показати форму при натисканні кнопки
+    setShowForm(true);
   };
 
   const handleSearchChange = (e) => {
@@ -107,6 +127,16 @@ const Header = () => {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const getRowStyle = (rezolution) => {
+    if (rezolution === "ok") {
+      return { backgroundColor: "green", color: "white" };
+    }
+    if (rezolution === "bad") {
+      return { backgroundColor: "red", color: "white" };
+    }
+    return {};
   };
 
   const redirectToPDF = (pdfUrl) => {
@@ -150,7 +180,7 @@ const Header = () => {
               className={styles.filterInput}
               type="text"
               name="certificateNumber"
-              placeholder="Номер сертифікату"
+              placeholder="Номер талону"
               value={searchParams.certificateNumber}
               onChange={handleSearchChange}
             />
@@ -161,7 +191,6 @@ const Header = () => {
               onChange={handleSearchChange}
             >
               <option value="">Виберіть бренд</option>
-              <option value="Bosch">Bosch</option>
               <option value="Makita">Makita</option>
               <option value="Metabo">Metabo</option>
               <option value="Oleo-Mac">Oleo-Mac</option>
@@ -172,6 +201,16 @@ const Header = () => {
               type="date"
               name="saleDate"
               value={searchParams.saleDate || ""}
+              onChange={handleSearchChange}
+            />
+
+            {/* Додано поле для фільтру за менеджером */}
+            <input
+              className={styles.filterInput}
+              type="text"
+              name="manager"
+              placeholder="Менеджер"
+              value={searchParams.manager}
               onChange={handleSearchChange}
             />
           </div>
@@ -193,11 +232,12 @@ const Header = () => {
                     <th>Менеджер</th>
                     <th>Бренд</th>
                     <th>Дії</th>
+                    <th>Затвердження</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCertificates.map((cert) => (
-                    <tr key={cert.id}>
+                    <tr key={cert.id} style={getRowStyle(cert.rezolution)}>
                       <td>{cert.repairNumber}</td>
                       <td>{formatDate(cert.createdAt)}</td>
                       <td>{cert.certificateNumber}</td>
@@ -206,11 +246,29 @@ const Header = () => {
                       <td>{cert.brand}</td>
                       <td>
                         <span
-                          style={{ cursor: "pointer", color: "blue" }}
+                          style={{ cursor: "pointer", color: "lightgray" }}
                           onClick={() => redirectToPDF(cert.imageUrl)}
                         >
                           Завантажити PDF
                         </span>
+                      </td>
+                      <td>
+                        <select
+                          className={styles.rezolution}
+                          name="rezolution"
+                          value={cert.rezolution || ""}
+                          onChange={(e) =>
+                            handleResolutionChange(cert._id, e.target.value)
+                          }
+                          disabled={
+                            cert.rezolution === "ok" ||
+                            cert.rezolution === "bad"
+                          }
+                        >
+                          <option value="">Не визначено</option>
+                          <option value="ok">Схвалено</option>
+                          <option value="bad">Відхилено</option>
+                        </select>
                       </td>
                     </tr>
                   ))}

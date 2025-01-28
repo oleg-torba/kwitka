@@ -37,6 +37,10 @@ const WarrantySchema = new Schema({
     type: String,
     required: true,
   },
+  rezolution: {
+    type: String,
+    default: "",
+  },
 });
 
 const Warranty = models.warranty || model("warranty", WarrantySchema);

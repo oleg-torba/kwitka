@@ -185,3 +185,13 @@
 .pdfLink:hover {
   color: lightgreen;
 }
+
+.rezolution {
+  background-color: transparent;
+  color: white;
+  border-radius: 4px;
+  height: 25px;
+}
+.rezolution option {
+  background-color: black;
+}
