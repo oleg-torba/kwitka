@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { FiDownload, FiEdit } from "react-icons/fi";
 import styles from "./main.module.css";
 import axios from "axios";
 import UploadCertificate from "../form/addCertificateForm";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
+import Loader from "../loader/loader";
 
 const Header = () => {
   const [certificates, setCertificates] = useState([]);
@@ -18,8 +19,9 @@ const Header = () => {
     certificateNumber: "",
     brand: "",
     saleDate: null,
-    manager: "", // Додано нове поле для фільтру
+    manager: "",
   });
+  const [currentCertificate, setCurrentCertificate] = useState(null);
 
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -39,7 +41,7 @@ const Header = () => {
 
   useEffect(() => {
     let filtered = certificates;
-
+    console.log(certificates);
     if (searchParams.repairNumber) {
       filtered = filtered.filter((cert) =>
         cert.repairNumber
@@ -61,7 +63,6 @@ const Header = () => {
         cert.brand.toLowerCase().includes(searchParams.brand.toLowerCase())
       );
     }
-
     if (searchParams.saleDate) {
       filtered = filtered.filter(
         (cert) => cert.saleDate && cert.saleDate.includes(searchParams.saleDate)
@@ -69,7 +70,6 @@ const Header = () => {
     }
 
     if (searchParams.manager) {
-      // Фільтрація по менеджеру
       filtered = filtered.filter((cert) =>
         cert.manager.toLowerCase().includes(searchParams.manager.toLowerCase())
       );
@@ -77,16 +77,25 @@ const Header = () => {
 
     setFilteredCertificates(filtered);
   }, [searchParams, certificates]);
-
-  const handleFormSubmit = async (newCertificate) => {
+  const handleFormSubmit = async (certificateData) => {
     try {
-      await axios.post("/api/warranty", newCertificate);
-      // Після додавання сертифікату оновлюємо список сертифікатів
-      const response = await axios.get("/api/warranty");
-      setCertificates(response.data);
+      console.log(certificateData);
+      if (certificateData._id) {
+        response = await axios.put(
+          `/api/warranty/${certificateData._id}`,
+          certificateData
+        );
+      } else {
+        response = await axios.post("/api/warranty", certificateData);
+      }
+
+      const updatedCertificates = await axios.get("/api/warranty");
+
+      setCertificates(updatedCertificates.data);
+
       setShowForm(false);
     } catch (err) {
-      setError("Не вдалося додати сертифікат.");
+      setError("Не вдалося додати або оновити сертифікат.");
     }
   };
 
@@ -108,8 +117,19 @@ const Header = () => {
     }
   };
 
-  const handleAddCertificate = () => {
-    setShowForm(true);
+  const handleAddCertificate = async (id) => {
+    if (id) {
+      try {
+        const response = await axios.get(`/api/warranty/${id}`);
+        setCurrentCertificate(response.data);
+        setShowForm(true);
+      } catch (err) {
+        setError("Не вдалося завантажити сертифікат.");
+      }
+    } else {
+      setCurrentCertificate(null);
+      setShowForm(true);
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -133,7 +153,7 @@ const Header = () => {
     if (rezolution === "ok") {
       return { backgroundColor: "green", color: "white" };
     }
-    if (rezolution === "bad") {
+    if (rezolution === "rejected") {
       return { backgroundColor: "red", color: "white" };
     }
     return {};
@@ -155,7 +175,10 @@ const Header = () => {
             <span className={styles.close} onClick={() => setShowForm(false)}>
               &times;
             </span>
-            <UploadCertificate onSubmit={handleFormSubmit} />
+            <UploadCertificate
+              onSubmit={handleFormSubmit}
+              certificate={currentCertificate}
+            />
           </div>
         </div>
       )}
@@ -163,7 +186,10 @@ const Header = () => {
       <div>
         <div className={styles.searchForm}>
           <div>
-            <button className={styles.newBtn} onClick={handleAddCertificate}>
+            <button
+              className={styles.newBtn}
+              onClick={() => handleAddCertificate(null)}
+            >
               Додати новий
             </button>
           </div>
@@ -204,7 +230,6 @@ const Header = () => {
               onChange={handleSearchChange}
             />
 
-            {/* Додано поле для фільтру за менеджером */}
             <input
               className={styles.filterInput}
               type="text"
@@ -216,7 +241,7 @@ const Header = () => {
           </div>
         </div>
 
-        {loading && <p>Завантаження гарантійних ремонтів...</p>}
+        {loading && <Loader />}
         {error && <p>{error}</p>}
 
         {!loading && !error && (
@@ -227,55 +252,74 @@ const Header = () => {
                   <tr className={styles.tableTitle}>
                     <th>Номер ремонту</th>
                     <th>Дата заповнення</th>
-                    <th>Гарантійний талон</th>
-                    <th>Дата продажу</th>
-                    <th>Менеджер</th>
                     <th>Бренд</th>
+                    <th>Гарантійний талон</th>
+                    <th>Запчастина</th>
+                    <th>Дата продажу</th>
+                    <th>Дані клієнта</th>
+                    <th>Менеджер</th>
+
                     <th>Дії</th>
                     <th>Затвердження</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCertificates.map((cert) => (
-                    <tr key={cert.id} style={getRowStyle(cert.rezolution)}>
+                    <tr key={cert._id} style={getRowStyle(cert.rezolution)}>
                       <td>{cert.repairNumber}</td>
                       <td>{formatDate(cert.createdAt)}</td>
-                      <td>{cert.certificateNumber}</td>
-                      <td>{formatDate(cert.saleDate)}</td>
-                      <td>{cert.manager}</td>
                       <td>{cert.brand}</td>
+                      <td>{cert.certificateNumber}</td>
+                      <td>{cert.part}</td>
+                      <td>{formatDate(cert.saleDate)}</td>
+                      <td>{cert.reporting}</td>
+                      <td>{cert.manager}</td>
+
                       <td>
-                        <span
-                          style={{ cursor: "pointer", color: "lightgray" }}
-                          onClick={() => redirectToPDF(cert.imageUrl)}
-                        >
-                          Завантажити PDF
-                        </span>
+                        <div className={styles.iconsBlock}>
+                          <span
+                            className={styles.icon}
+                            style={{ cursor: "pointer", color: "lightgray" }}
+                            onClick={() => redirectToPDF(cert.imageUrl)}
+                          >
+                            <FiDownload size={15} title="Завантажити PDF" />
+                          </span>
+                          <span
+                            className={`${styles.icon} ${
+                              cert.rezolution === "ok" ? styles.disabled : ""
+                            }`}
+                            onClick={
+                              cert.rezolution !== "ok"
+                                ? () => handleAddCertificate(cert._id)
+                                : undefined
+                            }
+                          >
+                            <FiEdit size={15} title="Редагувати" />
+                          </span>
+                        </div>
                       </td>
                       <td>
-                        <select
-                          className={styles.rezolution}
-                          name="rezolution"
-                          value={cert.rezolution || ""}
-                          onChange={(e) =>
-                            handleResolutionChange(cert._id, e.target.value)
-                          }
-                          disabled={
-                            cert.rezolution === "ok" ||
-                            cert.rezolution === "bad"
-                          }
-                        >
-                          <option value="">Не визначено</option>
-                          <option value="ok">Схвалено</option>
-                          <option value="bad">Відхилено</option>
-                        </select>
+                        <div className={styles.tooltipWrapper}>
+                          <select
+                            className={styles.rezolution}
+                            name="rezolution"
+                            value={cert.rezolution || ""}
+                            onChange={(e) =>
+                              handleResolutionChange(cert._id, e.target.value)
+                            }
+                          >
+                            <option value="">Вибрати</option>
+                            <option value="ok">Погоджено</option>
+                            <option value="rejected">Відхилено</option>
+                          </select>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p>Немає сертифікатів за вашими критеріями.</p>
+              <p>Немає записів для відображення.</p>
             )}
           </ul>
         )}

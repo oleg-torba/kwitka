@@ -16,12 +16,17 @@
   border-collapse: collapse;
   margin-top: 20px;
   font-size: 14px;
+  font-weight: 600;
   transition: 0.5s;
 }
 
 .certificateTable th,
 .certificateTable td {
   padding: 10px;
+  max-width: 100px;
+  resize: none;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 
   text-align: center;
   border: 1px solid #ddd;
@@ -29,25 +34,6 @@
 
 .certificateTable th {
   background-color: darkslategray;
-  font-weight: bold;
-}
-
-.certificateTable img {
-  max-width: 100px;
-  height: auto;
-}
-
-.certificateTable button {
-  margin-right: 10px;
-  padding: 5px 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.certificateTable button:hover {
-  background-color: #45a049;
 }
 
 .modal {
@@ -77,8 +63,8 @@
   background-color: black;
   padding: 20px;
   border-radius: 8px;
-  width: 80%;
-  max-width: 500px;
+
+  width: 50%;
   position: relative;
   animation: scaleUp 0.3s ease-in-out;
 }
@@ -162,36 +148,76 @@
   margin-right: 0;
 }
 
-.clear {
-  cursor: pointer;
-
-  background-color: lightgray;
-  color: black;
-  font-weight: 500;
-  border-radius: 5px;
-  margin-left: 10px;
-}
-
 .searchBlock {
   display: flex;
   align-items: center;
-}
-.pdfLink {
-  color: green;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.pdfLink:hover {
-  color: lightgreen;
 }
 
 .rezolution {
   background-color: transparent;
   color: white;
-  border-radius: 4px;
-  height: 25px;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 600;
 }
+
+.rezolution:hover {
+  color: pink;
+}
+
 .rezolution option {
   background-color: black;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 100%;
+  left: 20%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltipWrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.iconsBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon {
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.icon:hover {
+  color: lightskyblue;
+
+  transform: scale(1.2);
+}
+
+.disabled {
+  color: lightslategray;
 }

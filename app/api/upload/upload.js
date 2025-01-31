@@ -1,11 +1,11 @@
 import { IncomingForm } from "formidable";
 import fs from "fs";
 import { NextResponse } from "next/server";
-import { Image } from "next-cloudinary"; // або ваш обраний метод інтеграції з Cloudinary
+import { Image } from "next-cloudinary";
 
 export const config = {
   api: {
-    bodyParser: false, // вимикаємо стандартний парсер для файлів
+    bodyParser: false,
   },
 };
 
@@ -13,7 +13,6 @@ export async function POST(req) {
   return new Promise((resolve, reject) => {
     const form = new IncomingForm();
 
-    // Описуємо процес обробки форми
     form.parse(req, async (err, fields, files) => {
       if (err) {
         console.error("Error during file parsing:", err);
@@ -23,9 +22,8 @@ export async function POST(req) {
       }
 
       try {
-        // Завантажуємо зображення на Cloudinary
         const result = await Image.upload(files.file[0].filepath, {
-          folder: "warranties", // ваш шлях на Cloudinary
+          folder: "warranties",
         });
 
         console.log("Image uploaded successfully:", result);
