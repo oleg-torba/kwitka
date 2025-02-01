@@ -37,6 +37,10 @@ const Header = () => {
     };
 
     fetchCertificates();
+
+    const interval = setInterval(fetchCertificates, 300000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
