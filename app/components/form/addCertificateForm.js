@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import styles from "./form.module.css";
 
 export default function UploadCertificate({ onSubmit, certificate }) {
@@ -13,7 +14,6 @@ export default function UploadCertificate({ onSubmit, certificate }) {
   const [manager, setManager] = useState("");
   const [brand, setBrand] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (certificate) {
@@ -41,10 +41,11 @@ export default function UploadCertificate({ onSubmit, certificate }) {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
+    console.log(selectedFile);
     if (selectedFile && selectedFile.type === "application/pdf") {
       setFile(selectedFile);
     } else {
-      setError("Будь ласка, виберіть файл у форматі PDF.");
+      toast.error("Будь ласка, виберіть файл у форматі PDF.");
       setFile(null);
     }
   };
@@ -59,17 +60,18 @@ export default function UploadCertificate({ onSubmit, certificate }) {
       !saleDate ||
       !reporting ||
       !manager ||
-      !brand
+      !brand ||
+      (!file && !certificate?.imageUrl)
     ) {
-      setError("Будь ласка, заповніть усі поля.");
+      toast.warning("Будь ласка, заповніть усі поля.");
       return;
     }
 
     setUploading(true);
-    setError(null);
 
     try {
       let uploadedFileUrl = certificate?.imageUrl;
+      let uploadedFilePublicId = certificate?.public_id;
 
       if (file) {
         const formData = new FormData();
@@ -91,6 +93,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
 
         const data = await response.json();
         uploadedFileUrl = data.secure_url;
+        uploadedFilePublicId = data.public_id;
       }
 
       const dataToSubmit = {
@@ -102,6 +105,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
         manager,
         brand,
         imageUrl: uploadedFileUrl,
+        public_id: uploadedFilePublicId,
         createdAt: certificate
           ? certificate.createdAt
           : new Date().toISOString(),
@@ -109,9 +113,9 @@ export default function UploadCertificate({ onSubmit, certificate }) {
       };
 
       onSubmit(dataToSubmit);
+      toast.success("Дані успішно оновлені");
     } catch (err) {
-      console.error(err);
-      setError("Сталася помилка при завантаженні або оновленні.");
+      toast.error(err.message || "Помилка збереження даних");
     } finally {
       setUploading(false);
     }
@@ -122,6 +126,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
       <h2>
         {certificate ? "Редагування документу" : "Форма завантаження звіту"}
       </h2>
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <div>
           <div className={styles.formInput}>
@@ -161,6 +166,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               required
             />
           </div>
+
           <div className={styles.formInput}>
             <label htmlFor="file" className={styles.fileLabel}>
               Завантажте файл (PDF):
@@ -176,7 +182,9 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               type="button"
               className={styles.customButton}
               onClick={() => document.getElementById("file").click()}
-            ></button>
+            >
+              Обрати файл
+            </button>
 
             {file && <p>Вибрано файл: {file.name}</p>}
             {certificate && !file && certificate.imageUrl && (
@@ -230,7 +238,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               <option value="">Виберіть менеджера</option>
               <option value="Олег">Олег</option>
               <option value="Денис">Денис</option>
-              <option value="Іван">Іван</option>
+              <option value="Авіна">Авіна</option>
             </select>
           </div>
 
@@ -244,26 +252,26 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               required
             >
               <option value="">Виберіть бренд</option>
-              <option value="Bosch">Bosch</option>
               <option value="Makita">Makita</option>
               <option value="Metabo">Metabo</option>
               <option value="Oleo-Mac">Oleo-Mac</option>
             </select>
           </div>
+
           <button
             type="submit"
             disabled={uploading}
             className={styles.submitBtn}
           >
             {uploading
-              ? "Завантаження.."
+              ? "Завантаження"
               : certificate
               ? "Оновити"
               : "Відправити"}
           </button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }

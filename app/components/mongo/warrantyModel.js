@@ -37,10 +37,15 @@ const WarrantySchema = new Schema({
     type: String,
     required: true,
   },
+  fixationDate: {
+    type: Date,
+    default: null,
+  },
   rezolution: {
     type: String,
     default: "",
   },
+  public_id: String,
 });
 
 const Warranty = models.warranty || model("warranty", WarrantySchema);

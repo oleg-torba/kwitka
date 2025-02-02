@@ -23,7 +23,7 @@
 .certificateTable th,
 .certificateTable td {
   padding: 10px;
-  max-width: 100px;
+  max-width: 150px;
   resize: none;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -49,7 +49,27 @@
   z-index: 1000;
   animation: fadeIn 0.3s ease-in-out;
 }
-
+.passwordModal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-in-out;
+}
+.passwordModalodalContent {
+  background-color: black;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+  position: relative;
+  animation: scaleUp 0.3s ease-in-out;
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -63,7 +83,6 @@
   background-color: black;
   padding: 20px;
   border-radius: 8px;
-
   width: 50%;
   position: relative;
   animation: scaleUp 0.3s ease-in-out;
@@ -161,13 +180,17 @@
   cursor: pointer;
 
   text-align: center;
-
+  outline: none;
   font-size: 14px;
   font-weight: 600;
 }
 
 .rezolution:hover {
   color: pink;
+}
+
+.rezolution:focus {
+  outline: none;
 }
 
 .rezolution option {
@@ -219,5 +242,48 @@
 }
 
 .disabled {
-  color: lightslategray;
+  color: darkgray;
+}
+
+.user {
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.user span {
+  margin-left: 10px;
+}
+
+.formInput {
+  display: flex;
+  flex-direction: column;
+  margin-top: 25px;
+  font-weight: 600;
+  min-width: 300px;
+  border-radius: 5px;
+  outline: none;
+  height: 30px;
+  border: none;
+}
+
+.passBtn {
+  width: 100px;
+  margin-top: 20px;
+  padding: 5px;
+  background-color: green;
+  color: white;
+  border-radius: 4px;
+}
+
+.passForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.passTitle {
+  font-size: 14px;
+  text-align: center;
 }

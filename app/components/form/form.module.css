@@ -21,12 +21,14 @@
   margin-top: 10px;
   border-radius: 5px;
   border: none;
+  padding: 5px;
+  color: darkslategrey;
 }
 
 .submitBtn {
   margin-top: 50px;
   display: inline-block;
-  background-color: #007bff;
+  background-color: darksalmon;
   color: white;
   padding: 10px 20px;
   font-size: 16px;

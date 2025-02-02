@@ -8,7 +8,6 @@ export async function POST(req) {
     console.log("База даних підключена");
 
     const body = await req.json();
-    console.log("Отримане тіло запиту:", body);
 
     const {
       repairNumber,
@@ -16,6 +15,8 @@ export async function POST(req) {
       part,
       saleDate,
       reporting,
+      manager,
+      brand,
       imageUrl,
     } = body;
 
@@ -25,10 +26,20 @@ export async function POST(req) {
       !part ||
       !saleDate ||
       !reporting ||
+      !manager ||
+      !brand ||
       !imageUrl
     ) {
       return NextResponse.json(
         { error: "Усі обов'язкові поля мають бути заповнені." },
+        { status: 400 }
+      );
+    }
+
+    const existingWarranty = await Warranty.findOne({ certificateNumber });
+    if (existingWarranty) {
+      return NextResponse.json(
+        { error: "Сертифікат із таким номером вже існує." },
         { status: 400 }
       );
     }
@@ -39,10 +50,10 @@ export async function POST(req) {
       part,
       saleDate,
       reporting,
-      imageUrl: imageUrl || undefined,
+      manager,
+      brand,
+      imageUrl,
     });
-
-    console.log("Гарантійний сертифікат створено:", newWarranty);
 
     return NextResponse.json(
       {

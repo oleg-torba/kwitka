@@ -2,18 +2,27 @@
 
 import React, { useEffect, useState } from "react";
 import { FiDownload, FiEdit } from "react-icons/fi";
+import { FiTrash } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 import styles from "./main.module.css";
 import axios from "axios";
 import UploadCertificate from "../form/addCertificateForm";
 
 import Loader from "../loader/loader";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import { PasswordModal } from "../Modal/passwordModal";
 
 const Header = () => {
   const [certificates, setCertificates] = useState([]);
+  const [actionType, setActionType] = useState(null);
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showPasswordForm, setshowPasswordForm] = useState(false);
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState(null);
   const [searchParams, setSearchParams] = useState({
     repairNumber: "",
     certificateNumber: "",
@@ -21,17 +30,30 @@ const Header = () => {
     saleDate: null,
     manager: "",
   });
+
   const [currentCertificate, setCurrentCertificate] = useState(null);
 
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
+        const source = axios.CancelToken.source();
+        setTimeout(() => source.cancel(), 5000);
         const response = await axios.get("/api/warranty");
         setCertificates(response.data);
         setFilteredCertificates(response.data);
         setLoading(false);
+        toast.success("Сертифікати успішно завантажено.");
       } catch (err) {
-        setError("Не вдалося завантажити сертифікати.");
+        setError(err);
+        setLoading(false);
+
+        if (axios.isCancel(error)) {
+          console.error("Запит скасовано:", error.message);
+        } else {
+          console.error("Помилка сервера:", error);
+          toast.error("Не вдалося підключитися до сервера.");
+        }
+      } finally {
         setLoading(false);
       }
     };
@@ -41,11 +63,10 @@ const Header = () => {
     const interval = setInterval(fetchCertificates, 300000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [error]);
 
   useEffect(() => {
     let filtered = certificates;
-    console.log(certificates);
     if (searchParams.repairNumber) {
       filtered = filtered.filter((cert) =>
         cert.repairNumber
@@ -67,6 +88,7 @@ const Header = () => {
         cert.brand.toLowerCase().includes(searchParams.brand.toLowerCase())
       );
     }
+
     if (searchParams.saleDate) {
       filtered = filtered.filter(
         (cert) => cert.saleDate && cert.saleDate.includes(searchParams.saleDate)
@@ -81,9 +103,10 @@ const Header = () => {
 
     setFilteredCertificates(filtered);
   }, [searchParams, certificates]);
+
   const handleFormSubmit = async (certificateData) => {
     try {
-      console.log(certificateData);
+      let response;
       if (certificateData._id) {
         response = await axios.put(
           `/api/warranty/${certificateData._id}`,
@@ -94,30 +117,38 @@ const Header = () => {
       }
 
       const updatedCertificates = await axios.get("/api/warranty");
-
       setCertificates(updatedCertificates.data);
-
       setShowForm(false);
+      toast.success("Дані успішно завантажено.");
     } catch (err) {
-      setError("Не вдалося додати або оновити сертифікат.");
+      setError(err);
+      toast.error(error);
     }
   };
 
   const handleResolutionChange = async (id, newResolution) => {
     try {
-      const response = await axios.put(`/api/warranty/${id}`, {
+      const updateData = {
         rezolution: newResolution,
-      });
+      };
+
+      if (newResolution === "ok" || newResolution === "rejected") {
+        updateData.fixationDate = new Date().toISOString();
+      }
+
+      const response = await axios.put(`/api/warranty/${id}`, updateData);
 
       if (response.status === 200) {
         setCertificates((prevCertificates) =>
           prevCertificates.map((cert) =>
-            cert._id === id ? { ...cert, rezolution: newResolution } : cert
+            cert._id === id ? { ...cert, ...updateData } : cert
           )
         );
+        toast.success("Дані успішно оновлено.");
       }
     } catch (err) {
       console.error("Не вдалося оновити рішення:", err);
+      toast.error("Помилка оновлення даних");
     }
   };
 
@@ -126,9 +157,11 @@ const Header = () => {
       try {
         const response = await axios.get(`/api/warranty/${id}`);
         setCurrentCertificate(response.data);
-        setShowForm(true);
+        setShowForm(false);
+        setshowPasswordForm(true);
       } catch (err) {
         setError("Не вдалося завантажити сертифікат.");
+        toast.error(error.message);
       }
     } else {
       setCurrentCertificate(null);
@@ -155,16 +188,66 @@ const Header = () => {
 
   const getRowStyle = (rezolution) => {
     if (rezolution === "ok") {
-      return { backgroundColor: "green", color: "white" };
+      return { backgroundColor: "darkcyan", color: "white" };
     }
     if (rezolution === "rejected") {
-      return { backgroundColor: "red", color: "white" };
+      return { backgroundColor: "red", color: "pink" };
     }
     return {};
   };
 
   const redirectToPDF = (pdfUrl) => {
     window.open(pdfUrl, "_blank");
+    toast.info("Завантаження PDF...");
+  };
+
+  const handleDeleteCertificate = async (certificateId) => {
+    try {
+      await axios.delete(`/api/warranty/${certificateId}`);
+      setCertificates((prevCertificates) =>
+        prevCertificates.filter((cert) => cert._id !== certificateId)
+      );
+      toast.success("Сертифікат успішно видалено!");
+      setshowPasswordForm(false);
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
+  // const openPasswordModal = (certificateId) => {
+  //   setCurrentCertificate(certificateId);
+  //   setshowPasswordForm(true);
+  // };
+
+  const openPasswordModalForDelete = (certificateId) => {
+    setCurrentCertificate(certificateId);
+    setActionType("delete");
+    setshowPasswordForm(true);
+  };
+
+  const openPasswordModalForEdit = (certificateId) => {
+    setCurrentCertificate(certificateId);
+    setActionType("edit");
+    setshowPasswordForm(true);
+  };
+
+  const handlePasswordSubmit = (password) => {
+    if (password === "1122") {
+      if (actionType === "delete") {
+        handleDeleteCertificate(certificateToDelete);
+      } else if (actionType === "edit") {
+        setShowForm(true);
+      }
+      setshowPasswordForm(false);
+      setActionType(null);
+    } else {
+      toast.error("Невірний пароль!");
+      setshowPasswordForm(false);
+      setActionType(null);
+    }
+  };
+  const closePasswordModal = () => {
+    setshowPasswordForm(false);
   };
 
   return (
@@ -182,6 +265,34 @@ const Header = () => {
             <UploadCertificate
               onSubmit={handleFormSubmit}
               certificate={currentCertificate}
+            />
+          </div>
+        </div>
+      )}
+
+      {showPasswordForm && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <span className={styles.close} onClick={() => closePasswordModal()}>
+              &times;
+            </span>
+            <PasswordModal
+              isOpen={openPasswordModalForDelete && openPasswordModalForEdit}
+              onSubmit={handlePasswordSubmit}
+            />
+          </div>
+        </div>
+      )}
+
+      {isPasswordCorrect && showForm && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <span className={styles.close} onClick={() => setShowForm(false)}>
+              &times;
+            </span>
+            <UploadCertificate
+              certificate={currentCertificate}
+              onSubmit={handleFormSubmit}
             />
           </div>
         </div>
@@ -246,7 +357,6 @@ const Header = () => {
         </div>
 
         {loading && <Loader />}
-        {error && <p>{error}</p>}
 
         {!loading && !error && (
           <ul>
@@ -276,7 +386,12 @@ const Header = () => {
                       <td>{cert.certificateNumber}</td>
                       <td>{cert.part}</td>
                       <td>{formatDate(cert.saleDate)}</td>
-                      <td>{cert.reporting}</td>
+                      <td>
+                        <div className={styles.user}>
+                          <FiUser size={15} />
+                          <span> {cert.reporting}</span>
+                        </div>
+                      </td>
                       <td>{cert.manager}</td>
 
                       <td>
@@ -288,18 +403,19 @@ const Header = () => {
                           >
                             <FiDownload size={15} title="Завантажити PDF" />
                           </span>
-                          <span
-                            className={`${styles.icon} ${
-                              cert.rezolution === "ok" ? styles.disabled : ""
-                            }`}
-                            onClick={
-                              cert.rezolution !== "ok"
-                                ? () => handleAddCertificate(cert._id)
-                                : undefined
-                            }
+                          {/* <span
+                            className={styles.icon}
+                            onClick={() => openPasswordModalForEdit(cert._id)}
                           >
                             <FiEdit size={15} title="Редагувати" />
                           </span>
+                          <span
+                            className={styles.icon}
+                            style={{ cursor: "pointer", color: "lightgray" }}
+                            onClick={() => openPasswordModalForDelete(cert._id)}
+                          >
+                            <FiTrash size={15} title="Видалити" />
+                          </span> */}
                         </div>
                       </td>
                       <td>
@@ -316,6 +432,14 @@ const Header = () => {
                             <option value="ok">Погоджено</option>
                             <option value="rejected">Відхилено</option>
                           </select>
+                          {cert.rezolution !== "" && (
+                            <p>
+                              Дата:{" "}
+                              {new Date(cert.fixationDate).toLocaleDateString(
+                                "uk-UA"
+                              )}
+                            </p>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -323,11 +447,12 @@ const Header = () => {
                 </tbody>
               </table>
             ) : (
-              <p>Немає записів для відображення.</p>
+              <p>Не знайдено сертифікатів</p>
             )}
           </ul>
         )}
       </div>
+      <ToastContainer />
     </main>
   );
 };
