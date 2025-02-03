@@ -191,6 +191,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               <p>
                 Файл:{" "}
                 <a
+                  className={styles.fileLink}
                   href={certificate.imageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -235,7 +236,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               onChange={(e) => setManager(e.target.value)}
               required
             >
-              <option value="">Виберіть менеджера</option>
+              <option value="">Не вказано</option>
               <option value="Олег">Олег</option>
               <option value="Денис">Денис</option>
               <option value="Авіна">Авіна</option>
@@ -251,7 +252,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               onChange={(e) => setBrand(e.target.value)}
               required
             >
-              <option value="">Виберіть бренд</option>
+              <option value="">Не вказано</option>
               <option value="Makita">Makita</option>
               <option value="Metabo">Metabo</option>
               <option value="Oleo-Mac">Oleo-Mac</option>

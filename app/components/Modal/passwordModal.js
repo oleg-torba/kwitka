@@ -1,34 +1,33 @@
-import styles from "../main/main.module.css";
+import { useState } from "react";
+import styles from "./PasswordModal.module.css";
+const PasswordModal = ({ isOpen, onClose, onConfirm }) => {
+  const [password, setPassword] = useState("");
 
-export const PasswordModal = ({ isOpen, onClose, onSubmit, error }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onConfirm(password);
+    setPassword("");
+  };
+
   return (
     <div>
-      {isOpen && (
-        <div>
-          <h3 className={styles.passTitle}>
-            Для видалення чи редагування потрібен пароль
-          </h3>
-          <form
-            className={styles.passForm}
-            onSubmit={(e) => {
-              e.preventDefault();
-              const password = e.target.password.value;
-              onSubmit(password);
-            }}
-          >
-            <input
-              className={styles.formInput}
-              type="password"
-              name="password"
-              placeholder="Введіть пароль"
-            />
-            <button className={styles.passBtn} type="submit">
-              Ок
-            </button>
-            {error && <p>{error}</p>}
-          </form>
-        </div>
-      )}
+      <h3 className={styles.title}>
+        Редагування та видалення заборонено адміністратором
+      </h3>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <input
+          className={styles.input}
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Пароль"
+          required
+        />
+        <button className={styles.submitBtn} type="submit">
+          Підтвердити
+        </button>
+      </form>
     </div>
   );
 };
+export default PasswordModal;
