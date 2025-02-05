@@ -19,6 +19,7 @@ const Header = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [searchParams, setSearchParams] = useState({
@@ -27,6 +28,7 @@ const Header = () => {
     brand: "",
     saleDate: null,
     manager: "",
+    rezolution: "",
   });
 
   const [currentCertificate, setCurrentCertificate] = useState(null);
@@ -36,6 +38,7 @@ const Header = () => {
       try {
         const response = await axios.get("/api/warranty");
         setCertificates(response.data);
+        setFilteredCertificates(response.data);
         setLoading(false);
       } catch (err) {
         setError(err);
@@ -49,6 +52,62 @@ const Header = () => {
     const interval = setInterval(fetchCertificates, 300000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    let filtered = [...certificates];
+
+    if (searchParams.repairNumber) {
+      filtered = filtered.filter((cert) =>
+        cert.repairNumber
+          .toLowerCase()
+          .includes(searchParams.repairNumber.toLowerCase())
+      );
+    }
+
+    if (searchParams.certificateNumber) {
+      filtered = filtered.filter((cert) =>
+        cert.certificateNumber
+          .toLowerCase()
+          .includes(searchParams.certificateNumber.toLowerCase())
+      );
+    }
+
+    if (searchParams.brand) {
+      filtered = filtered.filter((cert) =>
+        cert.brand?.toLowerCase().includes(searchParams.brand.toLowerCase())
+      );
+    }
+
+    if (searchParams.saleDate) {
+      filtered = filtered.filter(
+        (cert) =>
+          cert.saleDate && String(cert.saleDate).includes(searchParams.saleDate)
+      );
+    }
+
+    if (searchParams.manager) {
+      filtered = filtered.filter((cert) =>
+        cert.manager?.toLowerCase().includes(searchParams.manager.toLowerCase())
+      );
+    }
+    if (searchParams.rezolution) {
+      filtered = filtered.filter((cert) =>
+        cert.rezolution
+          ?.toLowerCase()
+          .includes(searchParams.rezolution.toLowerCase())
+      );
+    }
+    setFilteredCertificates(filtered);
+  }, [
+    certificates,
+    searchParams.brand,
+    searchParams.certificateNumber,
+    searchParams.manager,
+    searchParams.repairNumber,
+    searchParams.resolution,
+    searchParams.saleDate,
+    searchParams.rezolution,
+  ]);
 
   const handleFormSubmit = async (certificateData) => {
     try {
@@ -124,6 +183,7 @@ const Header = () => {
       ...prevParams,
       [name]: value,
     }));
+    console.log(searchParams.brand);
   };
   const handleResolutionChange = async (id, newResolution) => {
     try {
@@ -138,12 +198,25 @@ const Header = () => {
       const response = await axios.put(`/api/warranty/${id}`, updateData);
 
       if (response.status === 200) {
-        setCertificates((prevCertificates) =>
-          prevCertificates.map((cert) =>
+        setCertificates((prevCertificates) => {
+          const updatedCertificates = prevCertificates.map((cert) =>
             cert._id === id ? { ...cert, ...updateData } : cert
-          )
-        );
-        toast.success("Дані успішно оновлено.");
+          );
+
+          let filtered = [...updatedCertificates];
+
+          if (searchParams.rezolution) {
+            filtered = filtered.filter((cert) =>
+              cert.rezolution
+                ?.toLowerCase()
+                .includes(searchParams.rezolution.toLowerCase())
+            );
+          }
+
+          setFilteredCertificates(filtered);
+          toast.success("Дані успішно оновлено.");
+          return updatedCertificates;
+        });
       }
     } catch (err) {
       console.error("Не вдалося оновити рішення:", err);
@@ -211,12 +284,12 @@ const Header = () => {
       <div>
         <div className={styles.searchForm}>
           <div>
-            <button
+            <span
               className={styles.newBtn}
               onClick={() => handleAddCertificate(null)}
             >
               Додати новий
-            </button>
+            </span>
           </div>
           <div className={styles.searchBlock}>
             <input
@@ -246,7 +319,6 @@ const Header = () => {
               <option value="Metabo">Metabo</option>
               <option value="Oleo-Mac">Oleo-Mac</option>
             </select>
-
             <input
               className={styles.filterInput}
               type="date"
@@ -254,7 +326,6 @@ const Header = () => {
               value={searchParams.saleDate || ""}
               onChange={handleSearchChange}
             />
-
             <input
               className={styles.filterInput}
               type="text"
@@ -263,6 +334,20 @@ const Header = () => {
               value={searchParams.manager}
               onChange={handleSearchChange}
             />
+
+            <div>
+              <select
+                className={styles.filterInput}
+                name="rezolution"
+                value={searchParams.rezolution}
+                onChange={handleSearchChange}
+              >
+                <option value="">Рішення</option>
+
+                <option value="ok">Прийнято</option>
+                <option value="rejected">Відхилено</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -288,7 +373,7 @@ const Header = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {certificates.map((cert) => (
+                  {filteredCertificates.map((cert) => (
                     <tr key={cert._id}>
                       <td>{cert.repairNumber}</td>
                       <td>{formatDate(cert.createdAt)}</td>

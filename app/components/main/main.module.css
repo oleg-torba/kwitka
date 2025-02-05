@@ -107,7 +107,7 @@
 
 .newBtn {
   cursor: pointer;
-
+  padding: 5px;
   background-color: darkslategray;
   color: white;
   font-weight: 600;

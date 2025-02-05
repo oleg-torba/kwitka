@@ -1,7 +1,5 @@
 import { dbConnect } from "@/app/components/mongo/lib/mongolib";
 import Warranty from "@/app/components/mongo/warrantyModel";
-import { NextResponse } from "next/server";
-import { toast } from "react-toastify";
 const crypto = require("crypto");
 
 export async function PUT(req, { params }) {
