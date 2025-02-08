@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./PasswordModal.module.css";
-const PasswordModal = ({ isOpen, onClose, onConfirm }) => {
+const PasswordModal = ({ onConfirm }) => {
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {

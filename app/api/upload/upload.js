@@ -1,5 +1,4 @@
 import { IncomingForm } from "formidable";
-import fs from "fs";
 import { NextResponse } from "next/server";
 import { Image } from "next-cloudinary";
 
