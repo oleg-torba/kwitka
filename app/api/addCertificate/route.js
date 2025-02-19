@@ -60,6 +60,7 @@ export async function POST(req) {
         message: "Гарантійний сертифікат успішно створено.",
         data: newWarranty,
       },
+
       { status: 201 }
     );
   } catch (error) {

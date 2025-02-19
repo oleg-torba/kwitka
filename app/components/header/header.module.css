@@ -1,0 +1,29 @@
+.header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid darkcyan;
+  padding: 5px;
+}
+
+.headerList {
+  display: flex;
+  font-weight: 500;
+  font-size: 18px;
+  justify-content: right;
+}
+
+.headerList li {
+  margin-right: 15px;
+  list-style-type: none;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.headerList a {
+  color: darkcyan;
+  text-decoration: none;
+  &:hover {
+    color: white;
+  }
+}

@@ -33,7 +33,7 @@
 }
 
 .certificateTable th {
-  background-color: darkslategray;
+  background-color: #253224;
 }
 
 .modal {
@@ -87,6 +87,7 @@
 
 .searchForm {
   margin-bottom: 20px;
+  background-color: transparent;
   display: flex;
   margin-top: 25px;
   margin-bottom: 25px;
@@ -97,20 +98,17 @@
 .searchForm button {
   padding: 8px 16px;
 }
-.container {
-  padding-left: 15px;
-  padding-right: 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
 
 .newBtn {
   cursor: pointer;
   padding: 5px;
-  background-color: darkslategray;
+  background-color: transparent;
   color: white;
   font-weight: 600;
   border-radius: 5px;
+  border: 0.5px solid white;
+  font-size: 14px;
+  text-align: center;
 }
 
 .filterInput {

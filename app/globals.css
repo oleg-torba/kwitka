@@ -14,8 +14,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #020202;
-  color: #ffffff;
+  background-color: #161815;
+
+  color: white;
+  height: 100vh;
 }
 
 code {
@@ -32,4 +34,10 @@ h2,
 h3 {
   margin: 0;
   padding: 0;
+}
+
+.container {
+  padding: 15px;
+  margin-left: auto;
+  margin-right: auto;
 }

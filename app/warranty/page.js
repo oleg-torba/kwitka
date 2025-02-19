@@ -5,17 +5,17 @@ import { FiEdit } from "react-icons/fi";
 import { CgArrowDownR } from "react-icons/cg";
 import { FiTrash } from "react-icons/fi";
 import { FiUser } from "react-icons/fi";
-import styles from "./main.module.css";
+import styles from "./page.module.css";
 import axios from "axios";
-import UploadCertificate from "../form/addCertificateForm";
+import UploadCertificate from "../components/form/addCertificateForm";
 import { motion, AnimatePresence } from "framer-motion";
 
-import Loader from "../loader/loader";
+import Loader from "../components/loader/loader";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
-import PasswordModal from "../Modal/passwordModal";
+import PasswordModal from "../components/Modal/passwordModal";
 
-const Header = () => {
+const WarranrtyService = () => {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,11 +33,14 @@ const Header = () => {
   });
 
   const [currentCertificate, setCurrentCertificate] = useState(null);
-
+  const playSound = () => {
+    const audio = new Audio("/message.mp3"); // Шлях до звукового файлу
+    audio.play();
+  };
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
-        const response = await axios.get("/api/warranty");
+        const response = await axios.get("/api/warranty/?page=1&limit=5");
         setCertificates(response.data);
         setFilteredCertificates(response.data);
         setLoading(false);
@@ -121,9 +124,10 @@ const Header = () => {
         await axios.post("/api/warranty", certificateData);
       }
 
-      const response = await axios.get("/api/warranty");
+      const response = await axios.get("/api/warranty/");
       setCertificates(response.data);
       setShowForm(false);
+
       toast.success("Дані завантажено.");
     } catch (err) {
       setError(err);
@@ -164,6 +168,7 @@ const Header = () => {
           );
         }, 700);
         toast.success("Сертифікат успішно видалено!");
+        playSound();
       } catch (err) {
         toast.error("Не вдалося видалити сертифікат.");
       } finally {
@@ -253,7 +258,7 @@ const Header = () => {
   };
 
   return (
-    <main className={styles.container}>
+    <div>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -316,7 +321,7 @@ const Header = () => {
                 className={styles.newBtn}
                 onClick={() => handleAddCertificate(null)}
               >
-                Додати новий
+                Додати
               </span>
             </div>
             <div className={styles.searchBlock}>
@@ -482,8 +487,8 @@ const Header = () => {
         </div>
       </motion.div>
       <ToastContainer />
-    </main>
+    </div>
   );
 };
 
-export default Header;
+export default WarranrtyService;
