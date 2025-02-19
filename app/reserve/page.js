@@ -6,8 +6,7 @@ import Loader from "../components/loader/loader";
 import styles from "./page.module.css";
 import { AnimatePresence, motion } from "framer-motion";
 import CommentModal from "../components/Modal/commentModal";
-import NotificationIcon from "../components/icon/icon";
-import { useNotifications } from "../components/notifications/notifications";
+
 let socket;
 
 export default function ReserveList() {
@@ -21,7 +20,7 @@ export default function ReserveList() {
   const [newCommentText, setNewCommentText] = useState("");
   const [newCommentAuthor, setNewCommentAuthor] = useState("");
   const [apiError, setApiError] = useState(null);
-  const { addNotification } = useNotifications();
+
   const playNotificationSound = () => {
     const audio = new Audio("/message.mp3");
     audio.play();

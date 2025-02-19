@@ -1,7 +1,7 @@
+"use client";
 import "./globals.css";
 import { Header } from "./components/header/header";
 import { NotificationProvider } from "./components/notifications/notifications";
-import NotificationIcon from "./components/icon/icon";
 
 export default function RootLayout({ children }) {
   return (
@@ -9,7 +9,6 @@ export default function RootLayout({ children }) {
       <body>
         <NotificationProvider>
           <div className="container">
-            <NotificationIcon />
             <Header />
             <main>{children}</main>
             <footer></footer>

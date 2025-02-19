@@ -1,9 +1,7 @@
 "use client";
 import { useState } from "react";
-import { useNotifications } from "../notifications/notifications"; // Імпортуємо контекст для повідомлень
 
 export default function ReserveForm({ onClose }) {
-  const { addNotification } = useNotifications();
   const [repairNumber, setRepairNumber] = useState("");
   const [initiator, setInitiator] = useState("");
   const [approvalStatus, setApprovalStatus] = useState("");

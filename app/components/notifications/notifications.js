@@ -9,22 +9,20 @@ export const NotificationProvider = ({ children }) => {
   const [reserves, setReserves] = useState([]);
 
   useEffect(() => {
-    const socket = io(); // Підключаємося до WebSocket сервера
+    const socket = io("https://kwitka.onrender.com");
 
-    // Слухаємо події, коли приходить нове сповіщення
     socket.on("receiveNotification", (message) => {
-      setNotifications((prev) => [...prev, message]); // Додаємо нове сповіщення до стейту
-      const sound = new Audio("/message.mp3"); // Відтворюємо звук
+      setNotifications((prev) => [...prev, message]);
+      const sound = new Audio("/message.mp3");
       sound.play();
 
-      // Якщо це повідомлення про новий резерв
       if (message.type === "reserve_created") {
         setReserves((prevReserves) => [...prevReserves, message]);
       }
     });
 
     return () => {
-      socket.disconnect(); // Очищаємо підключення при розмонтажі
+      socket.disconnect();
     };
   }, []);
 
@@ -33,8 +31,4 @@ export const NotificationProvider = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-};
-
-export const useNotifications = () => {
-  return useContext(NotificationContext);
 };
