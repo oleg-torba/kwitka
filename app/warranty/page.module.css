@@ -11,19 +11,23 @@
   display: flex;
 }
 
-.certificateTable {
+.k {
   width: 100%;
+}
+.certificateTable {
+  min-width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
   font-size: 14px;
   font-weight: 600;
   transition: 0.5s;
+
+  background-color: #121317;
 }
 
 .certificateTable th,
 .certificateTable td {
   padding: 10px;
-  max-width: 150px;
+  max-width: 180px;
   resize: none;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -33,7 +37,7 @@
 }
 
 .certificateTable th {
-  background-color: #253224;
+  background-color: rgba(46, 46, 46, 0.8);
 }
 
 .modal {
@@ -111,37 +115,9 @@
   text-align: center;
 }
 
-.filterInput {
-  background-color: rgba(0, 0, 0, 0);
-  appearance: none;
-  color: white;
-  border-radius: 5px;
-  margin-right: 10px;
-  border: 0.5px solid #ccc;
-  height: 30px;
-  padding: 5px;
-  font-size: 12px;
-  line-height: 1.5;
-  min-width: 120px;
-}
-
-.filterInput::placeholder {
-  color: white;
-  opacity: 0.5;
-}
-.filterInput[type="date"]::-webkit-calendar-picker-indicator {
-  background-color: #fff;
-  border-radius: 50%;
-  padding: 3px;
-}
-.filterInput option {
-  background-color: black;
-  opacity: 0.5;
-  font-size: 12px;
-}
-
-.filterInput:last-child {
-  margin-right: 0;
+.filterBlock {
+  display: flex;
+  align-items: flex-start;
 }
 
 .searchBlock {
@@ -155,7 +131,6 @@
   border: none;
   padding: 8px;
   cursor: pointer;
-
   text-align: center;
   outline: none;
   font-size: 14px;
@@ -171,12 +146,19 @@
 }
 
 .rezolution option {
-  background-color: black;
+  background-color: #121317;
+  text-align: center;
+}
+
+.date {
+  text-align: center;
+  margin-bottom: 5px;
 }
 
 .tooltipWrapper {
   position: relative;
   display: inline-block;
+  text-align: center;
 }
 
 .tooltip {
@@ -222,14 +204,7 @@
   color: darkgray;
 }
 
-.user {
-  text-align: left;
-  display: flex;
-  align-items: center;
-}
-
 .user span {
-  margin-left: 10px;
   line-height: 2;
 }
 

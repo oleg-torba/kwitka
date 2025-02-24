@@ -4,128 +4,80 @@ import React, { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { CgArrowDownR } from "react-icons/cg";
 import { FiTrash } from "react-icons/fi";
-import { FiUser } from "react-icons/fi";
 import styles from "./page.module.css";
 import axios from "axios";
 import UploadCertificate from "../components/form/addCertificateForm";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiClock } from "react-icons/fi";
+import { FaCheck } from "react-icons/fa";
+import { MdClose } from "react-icons/md";
 
 import Loader from "../components/loader/loader";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import PasswordModal from "../components/Modal/passwordModal";
+import FilterComponent from "../components/sidebar/sidebar";
 
 const WarranrtyService = () => {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [filteredCertificates, setFilteredCertificates] = useState([]);
+
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-  const [searchParams, setSearchParams] = useState({
-    repairNumber: "",
-    certificateNumber: "",
-    brand: "",
-    saleDate: null,
-    manager: "",
-    rezolution: "",
-  });
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+  const [filteredData, setFilteredData] = useState([]);
   const [currentCertificate, setCurrentCertificate] = useState(null);
-  const playSound = () => {
-    const audio = new Audio("/message.mp3"); // Шлях до звукового файлу
-    audio.play();
-  };
+
   useEffect(() => {
-    const fetchCertificates = async () => {
+    const fetchCertificates = async (page = 1) => {
       try {
-        const response = await axios.get("/api/warranty/?page=1&limit=5");
-        setCertificates(response.data);
-        setFilteredCertificates(response.data);
+        const response = await axios.get(
+          `https://node-kwitka.onrender.com/api/warranty?page=${page}&limit=5`
+        );
+        setCertificates(response.data.data); // Ensure you're setting the correct data from the response
+        setTotalPages(response.data.totalPages); // Adjust based on your server's response
+
         setLoading(false);
       } catch (err) {
         setError(err);
         setLoading(false);
-        toast.error("Не вдалося підключитися до сервера.");
+        toast.error("Помилка при завантаженні даних");
       }
     };
 
-    fetchCertificates();
+    fetchCertificates(currentPage);
 
     const interval = setInterval(fetchCertificates, 300000);
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    let filtered = [...certificates];
-
-    if (searchParams.repairNumber) {
-      filtered = filtered.filter((cert) =>
-        cert.repairNumber
-          .toLowerCase()
-          .includes(searchParams.repairNumber.toLowerCase())
-      );
-    }
-
-    if (searchParams.certificateNumber) {
-      filtered = filtered.filter((cert) =>
-        cert.certificateNumber
-          .toLowerCase()
-          .includes(searchParams.certificateNumber.toLowerCase())
-      );
-    }
-
-    if (searchParams.brand) {
-      filtered = filtered.filter((cert) =>
-        cert.brand?.toLowerCase().includes(searchParams.brand.toLowerCase())
-      );
-    }
-
-    if (searchParams.saleDate) {
-      filtered = filtered.filter(
-        (cert) =>
-          cert.saleDate && String(cert.saleDate).includes(searchParams.saleDate)
-      );
-    }
-
-    if (searchParams.manager) {
-      filtered = filtered.filter((cert) =>
-        cert.manager?.toLowerCase().includes(searchParams.manager.toLowerCase())
-      );
-    }
-    if (searchParams.rezolution) {
-      filtered = filtered.filter((cert) =>
-        cert.rezolution
-          ?.toLowerCase()
-          .includes(searchParams.rezolution.toLowerCase())
-      );
-    }
-    setFilteredCertificates(filtered);
-  }, [
-    certificates,
-    searchParams.brand,
-    searchParams.certificateNumber,
-    searchParams.manager,
-    searchParams.repairNumber,
-    searchParams.resolution,
-    searchParams.saleDate,
-    searchParams.rezolution,
-  ]);
+  }, [currentPage, error]);
 
   const handleFormSubmit = async (certificateData) => {
     try {
       if (certificateData._id) {
         await axios.put(
-          `/api/warranty/${certificateData._id}`,
+          `https://node-kwitka.onrender.com/api/warranty/${certificateData._id}`,
           certificateData
         );
       } else {
-        await axios.post("/api/warranty", certificateData);
+        await axios.post(
+          "https://node-kwitka.onrender.com/api/warranty/addWarranty",
+          certificateData
+        );
       }
 
-      const response = await axios.get("/api/warranty/");
-      setCertificates(response.data);
+      const response = await axios.get(
+        "https://node-kwitka.onrender.com/api/warranty/"
+      );
+
+      setCertificates((prev) =>
+        prev.map((cert) =>
+          cert._id === response.data.data._id ? response.data.data : cert
+        )
+      );
       setShowForm(false);
 
       toast.success("Дані завантажено.");
@@ -135,11 +87,28 @@ const WarranrtyService = () => {
     }
   };
 
+  const sortData = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+
+    const sortedData = [...certificates].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    setCertificates(sortedData);
+  };
+
   const handleAddCertificate = async (id) => {
     if (id) {
       setPendingAction(() => async () => {
         try {
-          const response = await axios.get(`/api/warranty/${id}`);
+          const response = await axios.get(
+            `https://node-kwitka.onrender.com/api/warranty/${id}`
+          );
           setCurrentCertificate(response.data);
           setLoading(false);
           setShowForm(true);
@@ -158,15 +127,13 @@ const WarranrtyService = () => {
   const handleDeleteCertificate = (id) => {
     setPendingAction(() => async () => {
       try {
-        await axios.delete(`/api/warranty/${id}`);
+        await axios.delete(
+          `https://node-kwitka.onrender.com/api/warranty/${id}`
+        );
         setCertificates((prevCertificates) =>
           prevCertificates.filter((cert) => cert._id !== id)
         );
-        setTimeout(() => {
-          setFilteredCertificates((prev) =>
-            prev.filter((cert) => cert._id !== id)
-          );
-        }, 700);
+
         toast.success("Сертифікат успішно видалено!");
         playSound();
       } catch (err) {
@@ -188,13 +155,6 @@ const WarranrtyService = () => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    const { name, value } = e.target;
-    setSearchParams((prevParams) => ({
-      ...prevParams,
-      [name]: value,
-    }));
-  };
   const handleResolutionChange = async (id, newResolution) => {
     try {
       const updateData = {
@@ -205,9 +165,13 @@ const WarranrtyService = () => {
         updateData.fixationDate = new Date().toISOString();
       }
 
-      const response = await axios.put(`/api/warranty/${id}`, updateData);
+      const response = await axios.put(
+        `https://node-kwitka.onrender.com/api/warranty/${id}`,
+        updateData
+      );
 
       if (response.status === 200) {
+        toast.success("Дані успішно оновлено.");
         setCertificates((prevCertificates) => {
           const updatedCertificates = prevCertificates.map((cert) =>
             cert._id === id ? { ...cert, ...updateData } : cert
@@ -223,8 +187,6 @@ const WarranrtyService = () => {
             );
           }
 
-          setFilteredCertificates(filtered);
-          toast.success("Дані успішно оновлено.");
           return updatedCertificates;
         });
       }
@@ -242,23 +204,22 @@ const WarranrtyService = () => {
     });
   };
 
-  const getRowStyle = (rezolution) => {
-    if (rezolution === "ok") {
-      return { backgroundColor: "darkcyan", color: "white" };
-    }
-    if (rezolution === "rejected") {
-      return { backgroundColor: "red", color: "white", opacity: 0.8 };
-    }
-    return {};
-  };
-
   const redirectToPDF = (pdfUrl) => {
     window.open(pdfUrl, "_blank");
     toast.info("Завантаження PDF...");
   };
+  const getStatusIcon = (rezolution) => {
+    if (rezolution === "ok") {
+      return <FaCheck size={15} color="lightgreen" title="Погоджено" />;
+    }
+    if (rezolution === "rejected") {
+      return <MdClose size={15} color="red" title="Відхилено" />;
+    }
+    return <FiClock size={15} color="gray" title="На погодженні" />;
+  };
 
   return (
-    <div>
+    <div className={styles.k}>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -314,103 +275,50 @@ const WarranrtyService = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        <div>
-          <div className={styles.searchForm}>
-            <div>
-              <span
-                className={styles.newBtn}
-                onClick={() => handleAddCertificate(null)}
-              >
-                Додати
-              </span>
-            </div>
-            <div className={styles.searchBlock}>
-              <input
-                className={styles.filterInput}
-                type="text"
-                name="repairNumber"
-                placeholder="Номер ремонту"
-                value={searchParams.repairNumber}
-                onChange={handleSearchChange}
-              />
-              <input
-                className={styles.filterInput}
-                type="text"
-                name="certificateNumber"
-                placeholder="Номер талону"
-                value={searchParams.certificateNumber}
-                onChange={handleSearchChange}
-              />
-              <label htmlFor="brand-select"></label>
-              <select
-                id="brand-select"
-                className={styles.filterInput}
-                name="brand"
-                value={searchParams.brand}
-                onChange={handleSearchChange}
-              >
-                <option value="">Виберіть бренд</option>
-                <option value="Makita">Makita</option>
-                <option value="Metabo">Metabo</option>
-                <option value="Oleo-Mac">Oleo-Mac</option>
-              </select>
-              <input
-                className={styles.filterInput}
-                type="date"
-                name="saleDate"
-                value={searchParams.saleDate || ""}
-                onChange={handleSearchChange}
-              />
-              <input
-                className={styles.filterInput}
-                type="text"
-                name="manager"
-                placeholder="Менеджер"
-                value={searchParams.manager}
-                onChange={handleSearchChange}
-              />
 
-              <div>
-                <label htmlFor="rezolution-select"></label>
-                <select
-                  id="rezolution-select"
-                  className={styles.filterInput}
-                  name="rezolution"
-                  value={searchParams.rezolution}
-                  onChange={handleSearchChange}
-                >
-                  <option value="">Рішення</option>
-
-                  <option value="ok">Прийнято</option>
-                  <option value="rejected">Відхилено</option>
-                </select>
-              </div>
-            </div>
+        <div className={styles.searchForm}>
+          <div>
+            <span
+              className={styles.newBtn}
+              onClick={() => handleAddCertificate(null)}
+            >
+              Додати
+            </span>
           </div>
-
+        </div>
+        <div className={styles.filterBlock}>
           {loading && <Loader />}
 
           {!loading && !error && (
-            <ul>
-              {certificates.length > 0 ? (
+            <div>
+              {filteredData.length > 0 && (
                 <table className={styles.certificateTable}>
                   <thead>
                     <tr className={styles.tableTitle}>
-                      <th>Номер ремонту</th>
-                      <th>Дата заповнення</th>
-                      <th>Бренд</th>
-                      <th>Гарантійний талон</th>
-                      <th>Запчастина</th>
-                      <th>Дата продажу</th>
-                      <th>Дані клієнта</th>
-                      <th>Менеджер</th>
-
+                      <th onClick={() => sortData("repairNumber")}>
+                        № ремонту
+                      </th>
+                      <th onClick={() => sortData("createdAt")}>
+                        Дата заповнення
+                      </th>
+                      <th onClick={() => sortData("brand")}>Бренд</th>
+                      <th onClick={() => sortData("certificateNumber")}>
+                        Талон
+                      </th>
+                      <th onClick={() => sortData("part")}>Запчастина</th>
+                      <th onClick={() => sortData("saleDate")}>Дата продажу</th>
+                      <th onClick={() => sortData("reporting")}>
+                        Дані клієнта
+                      </th>
+                      <th onClick={() => sortData("manager")}>Менеджер</th>
                       <th>Дії</th>
-                      <th>Затвердження</th>
+                      <th onClick={() => sortData("rezolution")}>
+                        Затвердження
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredCertificates.map((cert) => (
+                    {filteredData.map((cert) => (
                       <tr key={cert._id}>
                         <td>{cert.repairNumber}</td>
                         <td>{formatDate(cert.createdAt)}</td>
@@ -420,7 +328,6 @@ const WarranrtyService = () => {
                         <td>{formatDate(cert.saleDate)}</td>
                         <td>
                           <div className={styles.user}>
-                            <FiUser size={15} />
                             <span>{cert.reporting}</span>
                           </div>
                         </td>
@@ -448,8 +355,8 @@ const WarranrtyService = () => {
                             </span>
                           </div>
                         </td>
-                        <td style={getRowStyle(cert.rezolution)}>
-                          <div className={styles.tooltipWrapper}>
+                        <td>
+                          <div>
                             <label htmlFor={`rezolution-${cert._id}`}></label>
                             <select
                               id={`rezolution-${cert._id}`}
@@ -464,26 +371,32 @@ const WarranrtyService = () => {
                               <option value="ok">Погоджено</option>
                               <option value="rejected">Відхилено</option>
                             </select>
-
-                            {cert.rezolution !== "" && (
-                              <p>
-                                Дата:{" "}
-                                {new Date(cert.fixationDate).toLocaleDateString(
-                                  "uk-UA"
-                                )}
-                              </p>
-                            )}
+                          </div>
+                          {cert.rezolution !== "" && (
+                            <p>
+                              {new Date(cert.fixationDate).toLocaleDateString(
+                                "uk-UA"
+                              )}
+                            </p>
+                          )}
+                          <div className={styles.statusIcon}>
+                            {getStatusIcon(cert.rezolution)}
                           </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              ) : (
-                <p>Сертифікатів не знайдено</p>
               )}
-            </ul>
+            </div>
           )}
+          {certificates.length > 0 && (
+            <FilterComponent
+              data={certificates}
+              setFilteredData={setFilteredData}
+            />
+          )}
+          {filteredData.length < 0 && <p>Не вдалось завантажити дані</p>}
         </div>
       </motion.div>
       <ToastContainer />

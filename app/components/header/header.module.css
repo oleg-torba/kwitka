@@ -1,6 +1,6 @@
 .header {
   margin-bottom: 20px;
-  border-bottom: 1px solid darkcyan;
+  border-bottom: 1px solid white;
   padding: 5px;
 }
 
@@ -21,9 +21,9 @@
 }
 
 .headerList a {
-  color: darkcyan;
+  color: white;
   text-decoration: none;
   &:hover {
-    color: white;
+    color: darkcyan;
   }
 }

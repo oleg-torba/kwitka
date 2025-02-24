@@ -14,7 +14,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #161815;
+  background-color: #191a1f;
 
   color: white;
   height: 100vh;
@@ -40,4 +40,5 @@ h3 {
   padding: 15px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }

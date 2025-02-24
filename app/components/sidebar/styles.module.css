@@ -1,0 +1,62 @@
+.sidebar {
+  width: 250px;
+  padding: 10px;
+  background-color: rgba(46, 46, 46, 0.8);
+  border-radius: 5px;
+  margin-left: auto;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.filterGroup {
+  margin-bottom: 20px;
+}
+
+.filterGroup label {
+  display: block;
+}
+
+.dateInput {
+  margin-top: 10px;
+}
+
+.filterGroup input,
+.filterGroup select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.applyBtn {
+  padding: 10px 10px;
+  background-color: #45eba8;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.applyBtn:hover {
+  background-color: darkcyan;
+}
+
+.clearBtn {
+  border: none;
+  padding: 10px 10px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  background-color: darkslategray;
+}
+.clearBtn:hover {
+  background-color: darkcyan;
+}
+.btnBlock {
+  display: flex;
+
+  align-items: center;
+}

@@ -71,7 +71,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
 
     try {
       let uploadedFileUrl = certificate?.imageUrl;
-      let uploadedFilePublicId = certificate?.public_id;
+      let uploadedFilePublicId = certificate?.version_id;
 
       if (file) {
         const formData = new FormData();
@@ -92,6 +92,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
         }
 
         const data = await response.json();
+        console.log(data);
         uploadedFileUrl = data.secure_url;
         uploadedFilePublicId = data.public_id;
       }
@@ -111,7 +112,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
           : new Date().toISOString(),
         _id: certificate ? certificate._id : null,
       };
-
+      console.log(dataToSubmit);
       onSubmit(dataToSubmit);
       toast.success("Дані успішно оновлені");
     } catch (err) {

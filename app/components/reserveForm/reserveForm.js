@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ReserveForm({ onClose }) {
   const [repairNumber, setRepairNumber] = useState("");
@@ -27,11 +27,6 @@ export default function ReserveForm({ onClose }) {
       });
 
       const data = await res.json();
-      if (data.success) {
-        onClose();
-      } else {
-        alert("Помилка при створенні резерву!");
-      }
     } catch (error) {
       alert("Помилка серверу!");
     }

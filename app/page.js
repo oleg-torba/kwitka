@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <div>
-      <p>лава</p>
+      <p>Тут шось буде</p>
     </div>
   );
 }

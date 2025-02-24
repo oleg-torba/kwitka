@@ -1,56 +1,22 @@
 "use client";
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { useEffect, useRef, useState } from "react";
 import ReserveForm from "../components/reserveForm/reserveForm";
 import Loader from "../components/loader/loader";
 import styles from "./page.module.css";
 import { AnimatePresence, motion } from "framer-motion";
 import CommentModal from "../components/Modal/commentModal";
 
-let socket;
-
 export default function ReserveList() {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [newComments, setNewComments] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [selectedReserveId, setSelectedReserveId] = useState(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [newCommentAuthor, setNewCommentAuthor] = useState("");
   const [apiError, setApiError] = useState(null);
 
-  const playNotificationSound = () => {
-    const audio = new Audio("/message.mp3");
-    audio.play();
-  };
-
-  // Підключення до WebSocket сервера
-  useEffect(() => {
-    socket = io(); // Підключення до сервера WebSocket
-
-    socket.on("connect", () => {
-      console.log("Підключено до WebSocket сервера");
-    });
-
-    socket.on("receiveNotification", (notification) => {
-      console.log("📩 Отримано сповіщення:", notification);
-      if (notification && notification.message) {
-        setNewComments((prevComments) => ({
-          ...prevComments,
-          [notification.id]: notification.message,
-        }));
-        playNotificationSound(); // Відтворюємо звук після отримання повідомлення
-      }
-    });
-
-    return () => {
-      socket.disconnect(); // Відключення при демонтажі компонента
-    };
-  }, []);
-
-  // Отримуємо список резервувань
   useEffect(() => {
     async function fetchReservations() {
       try {
@@ -58,17 +24,6 @@ export default function ReserveList() {
         if (!response.ok) throw new Error("Помилка отримання даних");
         const data = await response.json();
         setReservations(data.data);
-        if (response.ok) {
-          // Надсилаємо повідомлення всім підключеним клієнтам через WebSocket
-          await fetch("/socket.io", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: `Новий резерв створено: `,
-              type: "reserve_created",
-            }),
-          });
-        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -86,18 +41,12 @@ export default function ReserveList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reserveStatus: newStatus }),
       });
-
-      const data = await res.json();
-      if (data.success) {
-        await addNotification(`Статус резерву ${id} оновлено на ${newStatus}`);
-        socket.emit("sendNotification", `Статус резерву ${id} оновлено`);
-      }
     } catch (error) {
       console.error("Помилка оновлення статусу:", error);
     }
   };
 
-  const handleAddComment = async (id, author, commentText) => {
+  const handleAddComment = async (id) => {
     const reserve = reservations.find((res) => res._id === selectedReserveId);
     const updatedComment =
       reserve.comment && reserve.comment.trim()
@@ -120,15 +69,6 @@ export default function ReserveList() {
           )
         );
         handleCloseModal();
-
-        // Додаємо сповіщення в базу
-        await fetch("/api/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: `Коментар додано до резерву ${id}` }),
-        });
-
-        socket.emit("sendNotification", `Коментар додано до резерву ${id}`);
       } else {
         setApiError("Не вдалося додати коментар!");
       }
@@ -235,12 +175,16 @@ export default function ReserveList() {
                   className={styles.close}
                   onClick={() => setShowModal(false)}
                 >
-                  &times;
+                  ×
                 </span>
                 <CommentModal
                   isOpen={showModal}
                   selectedReserveId={selectedReserveId}
                   onAddComment={handleAddComment}
+                  newCommentText={newCommentText}
+                  setNewCommentText={setNewCommentText}
+                  newCommentAuthor={newCommentAuthor}
+                  setNewCommentAuthor={setNewCommentAuthor}
                 />
               </div>
             </div>
