@@ -27,3 +27,7 @@
     color: darkcyan;
   }
 }
+
+.active a {
+  color: darkcyan;
+}

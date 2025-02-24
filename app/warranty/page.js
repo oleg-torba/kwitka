@@ -38,14 +38,14 @@ const WarranrtyService = () => {
         const response = await axios.get(
           `https://node-kwitka.onrender.com/api/warranty?page=${page}&limit=5`
         );
-        setCertificates(response.data.data); // Ensure you're setting the correct data from the response
-        setTotalPages(response.data.totalPages); // Adjust based on your server's response
+        setCertificates(response.data.data);
+        setTotalPages(response.data.totalPages);
 
         setLoading(false);
       } catch (err) {
         setError(err);
         setLoading(false);
-        toast.error("Помилка при завантаженні даних");
+        toast.error("Помилка при завантаженні даних", err);
       }
     };
 
@@ -219,7 +219,7 @@ const WarranrtyService = () => {
   };
 
   return (
-    <div className={styles.k}>
+    <div>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

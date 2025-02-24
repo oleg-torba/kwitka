@@ -11,17 +11,12 @@
   display: flex;
 }
 
-.k {
-  width: 100%;
-}
 .certificateTable {
   min-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
   font-weight: 600;
   transition: 0.5s;
-
-  background-color: #121317;
 }
 
 .certificateTable th,
@@ -31,7 +26,6 @@
   resize: none;
   overflow-wrap: break-word;
   word-wrap: break-word;
-
   text-align: center;
   border: 1px solid #ddd;
 }
@@ -105,9 +99,9 @@
 
 .newBtn {
   cursor: pointer;
-  padding: 5px;
-  background-color: transparent;
-  color: white;
+  padding: 5px 20px;
+  background-color: #45eba8;
+  color: black;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid white;
@@ -118,6 +112,7 @@
 .filterBlock {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
 }
 
 .searchBlock {

@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
+import Loader from "../loader/loader";
 
-const FilterComponent = ({ data, setFilteredData }) => {
+const FilterComponent = ({ setFilteredData }) => {
   const [repairNumber, setRepairNumber] = useState("");
   const [certificateNumber, setCertificateNumber] = useState("");
   const [reporting, setReporting] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [brand, setBrand] = useState("");
-  const [resolution, setResolution] = useState("");
+  const [rezolution, setRezolution] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
       const response = await fetch(
         "https://node-kwitka.onrender.com/api/warranty/filter",
         {
-          method: "POST", // Вказуємо метод POST
-          headers: {
-            "Content-Type": "application/json", // Вказуємо тип контенту
-          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             repairNumber,
             certificateNumber,
@@ -26,32 +27,38 @@ const FilterComponent = ({ data, setFilteredData }) => {
             startDate,
             endDate,
             brand,
-            resolution,
+            rezolution,
           }),
         }
       );
-
       const data = await response.json();
-      console.log(data);
+      console.log("Отримані дані:", data);
       setFilteredData(data);
-    };
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
-  }, [
-    repairNumber,
-    certificateNumber,
-    reporting,
-    startDate,
-    endDate,
-    brand,
-    resolution,
-    setFilteredData,
-  ]);
+  }, []);
+
+  const resetFilters = () => {
+    setRepairNumber("");
+    setCertificateNumber("");
+    setReporting("");
+    setStartDate("");
+    setEndDate("");
+    setBrand("");
+    setRezolution("");
+    fetchData();
+  };
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.filterGroup}>
-        <label></label>
         <input
           type="text"
           value={repairNumber}
@@ -61,7 +68,6 @@ const FilterComponent = ({ data, setFilteredData }) => {
       </div>
 
       <div className={styles.filterGroup}>
-        <label></label>
         <input
           type="text"
           value={certificateNumber}
@@ -71,7 +77,6 @@ const FilterComponent = ({ data, setFilteredData }) => {
       </div>
 
       <div className={styles.filterGroup}>
-        <label></label>
         <input
           type="text"
           value={reporting}
@@ -88,7 +93,6 @@ const FilterComponent = ({ data, setFilteredData }) => {
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
-
         <input
           className={styles.dateInput}
           type="date"
@@ -98,26 +102,41 @@ const FilterComponent = ({ data, setFilteredData }) => {
       </div>
 
       <div className={styles.filterGroup}>
-        <label></label>
         <select value={brand} onChange={(e) => setBrand(e.target.value)}>
           <option value="">Бренд</option>
           <option value="Metabo">Metabo</option>
           <option value="Oleo-mac">Oleo-Mac</option>
-          <option value="Sony">Sony</option>
+          <option value="Makita">Makita</option>
         </select>
       </div>
 
       <div className={styles.filterGroup}>
-        <label></label>
         <select
-          value={resolution}
-          onChange={(e) => setResolution(e.target.value)}
+          value={rezolution}
+          onChange={(e) => setRezolution(e.target.value)}
         >
           <option value="">Статус</option>
           <option value="ok">Погоджено</option>
           <option value="rejected">Відхилено</option>
-          <option value="">На погоденні</option>
+          <option value="pending">На погодженні</option>
         </select>
+      </div>
+
+      <div className={styles.buttonGroup}>
+        <button
+          className={styles.applyBtn}
+          onClick={fetchData}
+          disabled={loading}
+        >
+          {loading ? <div className={styles.loader}></div> : "Застосувати"}
+        </button>
+        <button
+          className={styles.clearBtn}
+          onClick={resetFilters}
+          disabled={loading}
+        >
+          Скинути
+        </button>
       </div>
     </div>
   );
