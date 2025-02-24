@@ -23,7 +23,12 @@ const WarranrtyService = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
+  const [searchParams, setSearchParams] = useState({
+    brand: "",
+    saleDate: null,
+    manager: "",
+    rezolution: "",
+  });
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,9 +39,10 @@ const WarranrtyService = () => {
 
   useEffect(() => {
     const fetchCertificates = async (page = 1) => {
+      setFilteredData([]);
       try {
         const response = await axios.get(
-          `https://node-kwitka.onrender.com/api/warranty?page=${page}&limit=5`
+          `https://node-kwitka.onrender.com/api/warranty`
         );
         setCertificates(response.data.data);
         setTotalPages(response.data.totalPages);
@@ -55,6 +61,19 @@ const WarranrtyService = () => {
     return () => clearInterval(interval);
   }, [currentPage, error]);
 
+  useEffect(() => {
+    let filtered = [...certificates];
+
+    if (searchParams.rezolution) {
+      filtered = filtered.filter((cert) =>
+        cert.rezolution
+          ?.toLowerCase()
+          .includes(searchParams.rezolution.toLowerCase())
+      );
+    }
+
+    setFilteredData(filtered);
+  }, [searchParams, certificates]);
   const handleFormSubmit = async (certificateData) => {
     try {
       if (certificateData._id) {

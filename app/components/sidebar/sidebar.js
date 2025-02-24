@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
-import Loader from "../loader/loader";
 
 const FilterComponent = ({ setFilteredData }) => {
   const [repairNumber, setRepairNumber] = useState("");
@@ -40,10 +39,6 @@ const FilterComponent = ({ setFilteredData }) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const resetFilters = () => {
     setRepairNumber("");
