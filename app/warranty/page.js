@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { CgArrowDownR } from "react-icons/cg";
 import { FiTrash } from "react-icons/fi";
@@ -32,34 +32,48 @@ const WarranrtyService = () => {
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const [filteredData, setFilteredData] = useState([]);
   const [currentCertificate, setCurrentCertificate] = useState(null);
+  const sortData = (key) => {
+    let direction =
+      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
+    setSortConfig({ key, direction });
 
+    const sorted = [...filteredData].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredData(sorted);
+  };
   useEffect(() => {
-    const fetchCertificates = async (page = 1) => {
-      setFilteredData([]);
+    const controller = new AbortController();
+
+    const fetchCertificates = async () => {
       try {
         const response = await axios.get(
-          `https://node-kwitka.onrender.com/api/warranty`
+          `https://node-kwitka.onrender.com/api/warranty`,
+          { signal: controller.signal }
         );
         setCertificates(response.data.data);
-        setTotalPages(response.data.totalPages);
-
         setLoading(false);
       } catch (err) {
+        if (axios.isCancel(err)) return;
         setError(err);
-        setLoading(false);
-        toast.error("Помилка при завантаженні даних", err);
+        toast.error("Помилка при завантаженні даних");
       }
     };
 
-    fetchCertificates(currentPage);
-
+    fetchCertificates();
     const interval = setInterval(fetchCertificates, 300000);
-    return () => clearInterval(interval);
-  }, [currentPage, error]);
+
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     let filtered = [...certificates];
@@ -76,49 +90,33 @@ const WarranrtyService = () => {
   }, [searchParams, certificates]);
   const handleFormSubmit = async (certificateData) => {
     try {
+      let response;
       if (certificateData._id) {
-        await axios.put(
+        response = await axios.put(
           `https://node-kwitka.onrender.com/api/warranty/${certificateData._id}`,
           certificateData
         );
       } else {
-        await axios.post(
+        response = await axios.post(
           "https://node-kwitka.onrender.com/api/warranty/addWarranty",
           certificateData
         );
       }
 
-      const response = await axios.get(
-        "https://node-kwitka.onrender.com/api/warranty/"
-      );
+      setCertificates((prev) => {
+        if (certificateData._id) {
+          return prev.map((cert) =>
+            cert._id === response.data.data_id ? response.data.data : cert
+          );
+        }
+        return [...prev, response.data.data];
+      });
 
-      setCertificates((prev) =>
-        prev.map((cert) =>
-          cert._id === response.data.data._id ? response.data.data : cert
-        )
-      );
       setShowForm(false);
-
-      toast.success("Дані завантажено.");
+      toast.success("Дані успішно оновлено.");
     } catch (err) {
-      setError(err);
       toast.error("Помилка при оновленні даних.");
     }
-  };
-
-  const sortData = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-
-    const sortedData = [...certificates].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    setCertificates(sortedData);
   };
 
   const handleAddCertificate = async (id) => {
@@ -143,25 +141,20 @@ const WarranrtyService = () => {
     }
   };
 
-  const handleDeleteCertificate = (id) => {
+  const handleDeleteCertificate = useCallback((id) => {
     setPendingAction(() => async () => {
       try {
         await axios.delete(
           `https://node-kwitka.onrender.com/api/warranty/${id}`
         );
-        setCertificates((prevCertificates) =>
-          prevCertificates.filter((cert) => cert._id !== id)
-        );
-
+        setCertificates((prev) => prev.filter((cert) => cert._id !== id));
         toast.success("Сертифікат успішно видалено!");
-        playSound();
       } catch (err) {
         toast.error("Не вдалося видалити сертифікат.");
-      } finally {
       }
     });
     setPasswordModalOpen(true);
-  };
+  }, []);
 
   const handlePasswordCheck = (password) => {
     if (password === "1122") {
@@ -176,44 +169,26 @@ const WarranrtyService = () => {
 
   const handleResolutionChange = async (id, newResolution) => {
     try {
-      const updateData = {
-        rezolution: newResolution,
-      };
+      const updateData = { rezolution: newResolution };
 
-      if (newResolution === "ok" || newResolution === "rejected") {
+      if (["ok", "rejected"].includes(newResolution)) {
         updateData.fixationDate = new Date().toISOString();
       }
 
-      const response = await axios.put(
+      const { data } = await axios.put(
         `https://node-kwitka.onrender.com/api/warranty/${id}`,
         updateData
       );
 
-      if (response.status === 200) {
-        toast.success("Дані успішно оновлено.");
-        setCertificates((prevCertificates) => {
-          const updatedCertificates = prevCertificates.map((cert) =>
-            cert._id === id ? { ...cert, ...updateData } : cert
-          );
-
-          let filtered = [...updatedCertificates];
-
-          if (searchParams.rezolution) {
-            filtered = filtered.filter((cert) =>
-              cert.rezolution
-                ?.toLowerCase()
-                .includes(searchParams.rezolution.toLowerCase())
-            );
-          }
-
-          return updatedCertificates;
-        });
-      }
+      setCertificates((prev) =>
+        prev.map((cert) => (cert._id === id ? data : cert))
+      );
+      toast.success("Дані успішно оновлено.");
     } catch (err) {
-      console.error("Не вдалося оновити рішення:", err);
-      toast.error("Помилка оновлення даних");
+      toast.error("Помилка оновлення даних.");
     }
   };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("uk-UA", {
@@ -314,26 +289,16 @@ const WarranrtyService = () => {
                 <table className={styles.certificateTable}>
                   <thead>
                     <tr className={styles.tableTitle}>
-                      <th onClick={() => sortData("repairNumber")}>
-                        № ремонту
-                      </th>
-                      <th onClick={() => sortData("createdAt")}>
-                        Дата заповнення
-                      </th>
-                      <th onClick={() => sortData("brand")}>Бренд</th>
-                      <th onClick={() => sortData("certificateNumber")}>
-                        Талон
-                      </th>
-                      <th onClick={() => sortData("part")}>Запчастина</th>
-                      <th onClick={() => sortData("saleDate")}>Дата продажу</th>
-                      <th onClick={() => sortData("reporting")}>
-                        Дані клієнта
-                      </th>
-                      <th onClick={() => sortData("manager")}>Менеджер</th>
-                      <th>Дії</th>
-                      <th onClick={() => sortData("rezolution")}>
-                        Затвердження
-                      </th>
+                      <th>№ ремонту</th>
+                      <th>Дата заповнення</th>
+                      <th>Бренд</th>
+                      <th>Талон</th>
+                      <th>Запчастина</th>
+                      <th>Дата продажу</th>
+                      <th>Дані клієнта</th>
+                      <th>Менеджер</th>
+                      <th className={styles.action}>Дії</th>
+                      <th>Затвердження</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -20,10 +20,13 @@ export default function ReserveList() {
   useEffect(() => {
     async function fetchReservations() {
       try {
-        const response = await fetch("/api/reserve");
+        const response = await fetch(
+          "https://node-kwitka.onrender.com/api/reserve"
+        );
         if (!response.ok) throw new Error("Помилка отримання даних");
         const data = await response.json();
-        setReservations(data.data);
+        console.log(data);
+        setReservations(data.reservation);
       } catch (err) {
         setError(err.message);
       } finally {
