@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import io from "socket.io-client"; // імпорт socket.io
 import ReserveForm from "../components/reserveForm/reserveForm";
 import Loader from "../components/loader/loader";
 import styles from "./page.module.css";
@@ -18,6 +19,15 @@ export default function ReserveList() {
   const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
+    const socket = io("https://node-kwitka.onrender.com");
+
+    socket.on("reserveCreated", (newReservation) => {
+      setReservations((prevReservations) => [
+        ...prevReservations,
+        newReservation,
+      ]);
+    });
+
     async function fetchReservations() {
       try {
         const response = await fetch(
@@ -34,16 +44,49 @@ export default function ReserveList() {
       }
     }
 
+    socket.on("message", (msg) => {
+      console.log("Received message:", msg);
+
+      if (msg && msg.sound) {
+        const sound = new Audio(`/message.mp3`);
+        sound
+          .play()
+          .catch((error) => console.error("Sound playback failed:", error));
+      }
+    });
+
+    socket.on("playSound", (data) => {
+      console.log("Received playSound event:", data);
+
+      if (data && data.sound) {
+        const sound = new Audio(`/${data.sound}`);
+        sound
+          .play()
+          .catch((error) => console.error("Sound playback failed:", error));
+      } else {
+        console.log("No sound data provided");
+      }
+    });
+
     fetchReservations();
+
+    return () => socketConnection.disconnect();
   }, []);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const res = await fetch(`/api/reserve/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reserveStatus: newStatus }),
-      });
+      const res = await fetch(
+        `https://node-kwitka.onrender.com/api/reserve/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reserveStatus: newStatus }),
+        }
+      );
+
+      const updatedReserve = await res.json();
+
+      socket.emit("reserveUpdated", updatedReserve);
     } catch (error) {
       console.error("Помилка оновлення статусу:", error);
     }
@@ -57,11 +100,14 @@ export default function ReserveList() {
         : `${newCommentAuthor}: ${newCommentText}`;
 
     try {
-      const response = await fetch(`/api/reserve/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: updatedComment }),
-      });
+      const response = await fetch(
+        `https://node-kwitka.onrender.com/api/reserve/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comment: updatedComment }),
+        }
+      );
 
       const data = await response.json();
 
@@ -71,6 +117,11 @@ export default function ReserveList() {
             res._id === id ? { ...res, comment: updatedComment } : res
           )
         );
+
+        if (socket) {
+          socket.emit("reserveUpdated", { _id: id, comment: updatedComment });
+        }
+
         handleCloseModal();
       } else {
         setApiError("Не вдалося додати коментар!");
@@ -90,6 +141,12 @@ export default function ReserveList() {
     setShowModal(false);
     setNewCommentText("");
     setNewCommentAuthor("");
+  };
+
+  const handleRequestAudio = () => {
+    if (socket) {
+      socket.emit("sendAudio");
+    }
   };
 
   if (loading) return <Loader />;

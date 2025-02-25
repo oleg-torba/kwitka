@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function ReserveForm({ onClose }) {
   const [repairNumber, setRepairNumber] = useState("");
@@ -18,13 +18,16 @@ export default function ReserveForm({ onClose }) {
     };
 
     try {
-      const res = await fetch("/api/reserve", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newReservation),
-      });
+      const res = await fetch(
+        "https://node-kwitka.onrender.com/api/reserve/addReserve",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newReservation),
+        }
+      );
 
       const data = await res.json();
     } catch (error) {
