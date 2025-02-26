@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import io from "socket.io-client"; // імпорт socket.io
+import { io } from "socket.io-client";
 import ReserveForm from "../components/reserveForm/reserveForm";
 import Loader from "../components/loader/loader";
 import styles from "./page.module.css";
@@ -17,17 +17,9 @@ export default function ReserveList() {
   const [newCommentText, setNewCommentText] = useState("");
   const [newCommentAuthor, setNewCommentAuthor] = useState("");
   const [apiError, setApiError] = useState(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socket = io("https://node-kwitka.onrender.com");
-
-    socket.on("reserveCreated", (newReservation) => {
-      setReservations((prevReservations) => [
-        ...prevReservations,
-        newReservation,
-      ]);
-    });
-
     async function fetchReservations() {
       try {
         const response = await fetch(
@@ -44,35 +36,23 @@ export default function ReserveList() {
       }
     }
 
-    socket.on("message", (msg) => {
-      console.log("Received message:", msg);
-
-      if (msg && msg.sound) {
-        const sound = new Audio(`/message.mp3`);
-        sound
-          .play()
-          .catch((error) => console.error("Sound playback failed:", error));
-      }
-    });
-
-    socket.on("playSound", (data) => {
-      console.log("Received playSound event:", data);
-
-      if (data && data.sound) {
-        const sound = new Audio(`/${data.sound}`);
-        sound
-          .play()
-          .catch((error) => console.error("Sound playback failed:", error));
-      } else {
-        console.log("No sound data provided");
-      }
-    });
-
     fetchReservations();
-
-    return () => socketConnection.disconnect();
   }, []);
+  useEffect(() => {
+    const newSocket = io("https://node-kwitka.onrender.com");
+    setSocket(newSocket);
 
+    newSocket.on("message", (msg) => {
+      console.log("Received:", msg);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+  const sendMessage = () => {
+    socket?.emit("message", "Hello from client");
+  };
   const handleStatusChange = async (id, newStatus) => {
     try {
       const res = await fetch(
@@ -85,8 +65,6 @@ export default function ReserveList() {
       );
 
       const updatedReserve = await res.json();
-
-      socket.emit("reserveUpdated", updatedReserve);
     } catch (error) {
       console.error("Помилка оновлення статусу:", error);
     }
@@ -117,10 +95,6 @@ export default function ReserveList() {
             res._id === id ? { ...res, comment: updatedComment } : res
           )
         );
-
-        if (socket) {
-          socket.emit("reserveUpdated", { _id: id, comment: updatedComment });
-        }
 
         handleCloseModal();
       } else {
@@ -154,6 +128,7 @@ export default function ReserveList() {
 
   return (
     <div>
+      <button onClick={sendMessage}>Send Message</button>
       <h2>Список резервувань</h2>
 
       <div>
