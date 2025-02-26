@@ -1,5 +1,4 @@
-"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CommentModal({
   isOpen,
@@ -10,17 +9,24 @@ export default function CommentModal({
   const [newCommentAuthor, setNewCommentAuthor] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Ініціалізація, якщо є попередній коментар у резервуванні
+  useEffect(() => {
+    if (selectedReserveId?.comment) {
+      const [author, text] = selectedReserveId.comment.split(":");
+      setNewCommentAuthor(author || "");
+      setNewCommentText(text || "");
+    }
+  }, [selectedReserveId]);
+
   const handleSubmit = (e) => {
-    e.preventDefault(); // запобігаємо перезавантаженню сторінки
+    e.preventDefault();
 
     if (!newCommentText.trim() || !newCommentAuthor.trim()) {
       alert("Будь ласка, заповніть всі поля!");
       return;
     }
 
-    console.log("Коментар: ", newCommentText);
-    console.log("Автор: ", newCommentAuthor);
-    onAddComment(selectedReserveId, newCommentAuthor, newCommentText);
+    onAddComment(selectedReserveId._id, newCommentAuthor, newCommentText);
   };
 
   if (!isOpen) return null;
@@ -37,9 +43,9 @@ export default function CommentModal({
             onChange={(e) => setNewCommentAuthor(e.target.value)}
           >
             <option value="">Виберіть автора</option>
-            <option value="Іван Іванов">Іван Іванов</option>
-            <option value="Олександр Петров">Олександр Петров</option>
-            <option value="Марія Сидорова">Марія Сидорова</option>
+            <option value="Назар">Назар</option>
+            <option value="Дмитро">Дмитро</option>
+            <option value="Денис">Денис</option>
           </select>
           <br />
           <label htmlFor="comment">Коментар:</label>

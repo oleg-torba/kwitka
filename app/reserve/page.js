@@ -14,8 +14,6 @@ export default function ReserveList() {
   const [showForm, setShowForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedReserveId, setSelectedReserveId] = useState(null);
-  const [newCommentText, setNewCommentText] = useState("");
-  const [newCommentAuthor, setNewCommentAuthor] = useState("");
   const [apiError, setApiError] = useState(null);
   const [socket, setSocket] = useState(null);
 
@@ -51,7 +49,7 @@ export default function ReserveList() {
     };
   }, []);
   const sendMessage = () => {
-    socket?.emit("message", "Hello from client");
+    socket?.emit("message", "Нове сповіщення");
   };
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -64,45 +62,18 @@ export default function ReserveList() {
         }
       );
 
-      const updatedReserve = await res.json();
+      if (!res.ok) {
+        throw new Error(`Помилка при оновленні статусу: ${res.statusText}`);
+      }
+
+      sendMessage();
+      setReservations((prevReservations) =>
+        prevReservations.map((res) =>
+          res._id === id ? { ...res, reserveStatus: newStatus } : res
+        )
+      );
     } catch (error) {
       console.error("Помилка оновлення статусу:", error);
-    }
-  };
-
-  const handleAddComment = async (id) => {
-    const reserve = reservations.find((res) => res._id === selectedReserveId);
-    const updatedComment =
-      reserve.comment && reserve.comment.trim()
-        ? `${reserve.comment}\n${newCommentAuthor}: ${newCommentText}`
-        : `${newCommentAuthor}: ${newCommentText}`;
-
-    try {
-      const response = await fetch(
-        `https://node-kwitka.onrender.com/api/reserve/${id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ comment: updatedComment }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setReservations((prevReservations) =>
-          prevReservations.map((res) =>
-            res._id === id ? { ...res, comment: updatedComment } : res
-          )
-        );
-
-        handleCloseModal();
-      } else {
-        setApiError("Не вдалося додати коментар!");
-      }
-    } catch (error) {
-      console.error("Помилка при додаванні коментаря:", error);
-      setApiError("Сталася помилка!");
     }
   };
 
@@ -117,18 +88,17 @@ export default function ReserveList() {
     setNewCommentAuthor("");
   };
 
-  const handleRequestAudio = () => {
-    if (socket) {
-      socket.emit("sendAudio");
-    }
-  };
+  // const handleRequestAudio = () => {
+  //   if (socket) {
+  //     socket.emit("sendAudio");
+  //   }
+  // };
 
   if (loading) return <Loader />;
   if (error) return <p>Помилка: {error}</p>;
 
   return (
     <div>
-      <button onClick={sendMessage}>Send Message</button>
       <h2>Список резервувань</h2>
 
       <div>
@@ -216,10 +186,6 @@ export default function ReserveList() {
                   isOpen={showModal}
                   selectedReserveId={selectedReserveId}
                   onAddComment={handleAddComment}
-                  newCommentText={newCommentText}
-                  setNewCommentText={setNewCommentText}
-                  newCommentAuthor={newCommentAuthor}
-                  setNewCommentAuthor={setNewCommentAuthor}
                 />
               </div>
             </div>

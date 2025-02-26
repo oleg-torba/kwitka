@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./globals.css";
 import { Header } from "./components/header/header";
@@ -7,25 +7,39 @@ import { Header } from "./components/header/header";
 const socket = io("https://node-kwitka.onrender.com"); // Заміни на свою адресу сервера
 
 export default function RootLayout({ children }) {
+  const audioContextRef = useRef(null);
+
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket server");
-    });
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext ||
+        window.webkitAudioContext)();
+    }
 
-    socket.on("message", (msg) => {
-      console.log("New message:", msg);
-    });
-
-    socket.on("playSound", ({ sound }) => {
+    socket.on("playSound", async ({ sound }) => {
       console.log("Playing sound:", sound);
-      const audio = new Audio(`/${sound}`);
-      audio.play();
+      await playAudio(`/${sound}`);
     });
 
     return () => {
-      socket.disconnect();
+      socket.off("playSound");
     };
   }, []);
+
+  const playAudio = async (url) => {
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContextRef.current.decodeAudioData(
+        arrayBuffer
+      );
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContextRef.current.destination);
+      source.start();
+    } catch (error) {
+      console.error("Audio play error:", error);
+    }
+  };
 
   return (
     <html lang="uk">
