@@ -17,6 +17,8 @@ export default function ReserveList() {
   const [apiError, setApiError] = useState(null);
   const [socket, setSocket] = useState(null);
 
+  const [newCommentText, setNewCommentText] = useState("");
+  const [newCommentAuthor, setNewCommentAuthor] = useState("");
   useEffect(() => {
     async function fetchReservations() {
       try {
@@ -25,7 +27,7 @@ export default function ReserveList() {
         );
         if (!response.ok) throw new Error("Помилка отримання даних");
         const data = await response.json();
-        console.log(data);
+
         setReservations(data.reservation);
       } catch (err) {
         setError(err.message);
@@ -51,6 +53,45 @@ export default function ReserveList() {
   const sendMessage = () => {
     socket?.emit("message", "Нове сповіщення");
   };
+  const handleAddComment = async (id, newCommentAuthor, newCommentText) => {
+    if (!newCommentAuthor.trim() || !newCommentText.trim()) {
+      setApiError("Автор і текст коментаря повинні бути заповнені.");
+      return;
+    }
+
+    // Отримуємо поточний список коментарів
+    const currentReserve = reservations.find((res) => res._id === id);
+    const updatedComments = [
+      ...(currentReserve.comments || []),
+      { author: newCommentAuthor, text: newCommentText },
+    ];
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/reserve/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comments: updatedComments }),
+      });
+
+      const data = await response.json();
+      if (data) {
+        setReservations((prevReservations) =>
+          prevReservations.map((res) =>
+            res._id === id ? { ...res, comments: updatedComments } : res
+          )
+        );
+
+        sendMessage();
+        handleCloseModal();
+      } else {
+        setApiError("Не вдалося додати коментар!");
+      }
+    } catch (error) {
+      console.error("Помилка при додаванні коментаря:", error);
+      setApiError("Сталася помилка!");
+    }
+  };
+
   const handleStatusChange = async (id, newStatus) => {
     try {
       const res = await fetch(
@@ -145,10 +186,12 @@ export default function ReserveList() {
                   </select>
                 </td>
                 <td>
-                  {res.comment && res.comment.length > 0 ? (
-                    res.comment
-                      .split("\n")
-                      .map((comment, index) => <div key={index}>{comment}</div>)
+                  {res.comments && res.comments.length > 0 ? (
+                    res.comments.map((comment, index) => (
+                      <div key={index}>
+                        <strong>{comment.author}:</strong> {comment.text}
+                      </div>
+                    ))
                   ) : (
                     <div>Немає коментарів</div>
                   )}

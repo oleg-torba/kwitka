@@ -5,28 +5,19 @@ export default function CommentModal({
   onAddComment,
   selectedReserveId,
 }) {
-  const [newCommentText, setNewCommentText] = useState("");
-  const [newCommentAuthor, setNewCommentAuthor] = useState("");
+  const [newCommentText, setNewCommentText] = useState([]);
+  const [newCommentAuthor, setNewCommentAuthor] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Ініціалізація, якщо є попередній коментар у резервуванні
-  useEffect(() => {
-    if (selectedReserveId?.comment) {
-      const [author, text] = selectedReserveId.comment.split(":");
-      setNewCommentAuthor(author || "");
-      setNewCommentText(text || "");
-    }
-  }, [selectedReserveId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    console.log(newCommentAuthor, newCommentText);
     if (!newCommentText.trim() || !newCommentAuthor.trim()) {
       alert("Будь ласка, заповніть всі поля!");
       return;
     }
 
-    onAddComment(selectedReserveId._id, newCommentAuthor, newCommentText);
+    onAddComment(selectedReserveId, newCommentAuthor, newCommentText);
   };
 
   if (!isOpen) return null;
@@ -39,7 +30,6 @@ export default function CommentModal({
           <label htmlFor="author">Автор коментаря:</label>
           <select
             id="author"
-            value={newCommentAuthor}
             onChange={(e) => setNewCommentAuthor(e.target.value)}
           >
             <option value="">Виберіть автора</option>
@@ -51,7 +41,6 @@ export default function CommentModal({
           <label htmlFor="comment">Коментар:</label>
           <textarea
             id="comment"
-            value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
           />
           <button type="submit" disabled={loading}>
