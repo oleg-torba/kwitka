@@ -112,12 +112,8 @@
 .filterBlock {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
 }
 
-.action {
-  min-width: 100px;
-}
 .searchBlock {
   display: flex;
   align-items: center;

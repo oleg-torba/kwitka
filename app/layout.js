@@ -2,7 +2,8 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./globals.css";
-import { Header } from "./components/header/header";
+
+import { Sidebar } from "./components/sidebar/sidebar";
 
 const socket = io("https://node-kwitka.onrender.com"); // Заміни на свою адресу сервера
 
@@ -45,7 +46,7 @@ export default function RootLayout({ children }) {
     <html lang="uk">
       <body>
         <div className="container">
-          <Header />
+          <Sidebar />
           <main>{children}</main>
           <footer></footer>
         </div>

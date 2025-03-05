@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { FiEdit } from "react-icons/fi";
-import { CgArrowDownR } from "react-icons/cg";
-import { FiTrash } from "react-icons/fi";
 import styles from "./page.module.css";
 import axios from "axios";
 import UploadCertificate from "../components/form/addCertificateForm";
@@ -16,7 +13,8 @@ import Loader from "../components/loader/loader";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import PasswordModal from "../components/Modal/passwordModal";
-import FilterComponent from "../components/sidebar/sidebar";
+import FilterComponent from "../components/filterPanel/filterPanel";
+import CertificateTable from "../components/table/certificateTable";
 
 const WarranrtyService = () => {
   const [certificates, setCertificates] = useState([]);
@@ -31,7 +29,6 @@ const WarranrtyService = () => {
   });
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const [filteredData, setFilteredData] = useState([]);
   const [currentCertificate, setCurrentCertificate] = useState(null);
@@ -67,12 +64,6 @@ const WarranrtyService = () => {
     };
 
     fetchCertificates();
-    const interval = setInterval(fetchCertificates, 300000);
-
-    return () => {
-      clearInterval(interval);
-      controller.abort();
-    };
   }, []);
 
   useEffect(() => {
@@ -286,91 +277,13 @@ const WarranrtyService = () => {
           {!loading && !error && (
             <div>
               {filteredData.length > 0 && (
-                <table className={styles.certificateTable}>
-                  <thead>
-                    <tr className={styles.tableTitle}>
-                      <th>№ ремонту</th>
-                      <th>Дата заповнення</th>
-                      <th>Бренд</th>
-                      <th>Талон</th>
-                      <th>Запчастина</th>
-                      <th>Дата продажу</th>
-                      <th>Дані клієнта</th>
-                      <th>Менеджер</th>
-                      <th className={styles.action}>Дії</th>
-                      <th>Затвердження</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredData.map((cert) => (
-                      <tr key={cert._id}>
-                        <td>{cert.repairNumber}</td>
-                        <td>{formatDate(cert.createdAt)}</td>
-                        <td>{cert.brand}</td>
-                        <td>{cert.certificateNumber}</td>
-                        <td>{cert.part}</td>
-                        <td>{formatDate(cert.saleDate)}</td>
-                        <td>
-                          <div className={styles.user}>
-                            <span>{cert.reporting}</span>
-                          </div>
-                        </td>
-                        <td>{cert.manager}</td>
-
-                        <td>
-                          <div className={styles.iconsBlock}>
-                            <span
-                              className={styles.icon}
-                              onClick={() => redirectToPDF(cert.imageUrl)}
-                            >
-                              <CgArrowDownR size={15} title="Завантажити PDF" />
-                            </span>
-                            <span
-                              className={styles.icon}
-                              onClick={() => handleAddCertificate(cert._id)}
-                            >
-                              <FiEdit size={15} title="Редагувати" />
-                            </span>
-                            <span
-                              className={styles.icon}
-                              onClick={() => handleDeleteCertificate(cert._id)}
-                            >
-                              <FiTrash size={15} title="Видалити" />
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <div>
-                            <label htmlFor={`rezolution-${cert._id}`}></label>
-                            <select
-                              id={`rezolution-${cert._id}`}
-                              className={styles.rezolution}
-                              name="rezolution"
-                              value={cert.rezolution || ""}
-                              onChange={(e) =>
-                                handleResolutionChange(cert._id, e.target.value)
-                              }
-                            >
-                              <option value="">На погодженні</option>
-                              <option value="ok">Погоджено</option>
-                              <option value="rejected">Відхилено</option>
-                            </select>
-                          </div>
-                          {cert.rezolution !== "" && (
-                            <p>
-                              {new Date(cert.fixationDate).toLocaleDateString(
-                                "uk-UA"
-                              )}
-                            </p>
-                          )}
-                          <div className={styles.statusIcon}>
-                            {getStatusIcon(cert.rezolution)}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <CertificateTable
+                  data={filteredData}
+                  onEdit={handleAddCertificate}
+                  onDelete={handleDeleteCertificate}
+                  onDownload={redirectToPDF}
+                  onResolutionChange={handleResolutionChange}
+                />
               )}
             </div>
           )}

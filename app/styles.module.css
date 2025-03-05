@@ -1,0 +1,36 @@
+.updateBlock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.updateList {
+  display: flex;
+  flex-direction: column;
+  width: 120px;
+  border: 1px solid white;
+  border-radius: 4px;
+  text-align: left;
+  justify-content: center;
+  padding: 5px;
+  background-color: darkcyan;
+  font-size: 12px;
+}
+
+.updateList span {
+  margin-bottom: 10px;
+}
+
+.reserveBlock {
+  border-bottom: 1px solid gray;
+  padding: 20px;
+  &:last-child {
+    margin-bottom: 0;
+    border: none;
+  }
+}
+
+.reserveBlock h3 {
+  margin-bottom: 10px;
+  font-size: 14px;
+}

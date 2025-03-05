@@ -67,11 +67,14 @@ export default function ReserveList() {
     ];
 
     try {
-      const response = await fetch(`http://localhost:3001/api/reserve/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comments: updatedComments }),
-      });
+      const response = await fetch(
+        `https://node-kwitka.onrender.com/api/reserve/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comments: updatedComments }),
+        }
+      );
 
       const data = await response.json();
       if (data) {

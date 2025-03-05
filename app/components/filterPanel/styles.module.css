@@ -1,0 +1,84 @@
+.sidebar {
+  min-width: 200px;
+  padding: 5px;
+  background-color: rgba(46, 46, 46, 0.8);
+  border-radius: 5px;
+  margin-left: 20px;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.filterGroup {
+  margin-bottom: 20px;
+}
+
+.filterGroup label {
+  display: block;
+}
+
+.dateInput {
+  margin-top: 10px;
+}
+
+.filterGroup input,
+.filterGroup select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.applyBtn {
+  position: relative;
+  padding: 10px 10px;
+  width: 120px;
+  background-color: #45eba8;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 20px;
+  transition: background 0.3s ease;
+}
+
+.applyBtn:hover {
+  background-color: darkcyan;
+  color: white;
+}
+
+.clearBtn {
+  border: none;
+  border-radius: 4px;
+  padding: 10px 10px;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.3s ease;
+  background-color: darkslategray;
+  margin-top: 10px;
+}
+.clearBtn:hover {
+  background-color: darkcyan;
+}
+
+.loader {
+  display: inline-block;
+  width: 16px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top: 2px solid transparent;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
