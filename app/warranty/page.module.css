@@ -186,6 +186,10 @@
 .icon {
   cursor: pointer;
   transition: transform 0.2s, color 0.2s;
+  margin-right: 7px;
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
 .icon:hover {
