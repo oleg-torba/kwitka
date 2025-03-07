@@ -29,25 +29,12 @@ const WarranrtyService = () => {
   });
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+
   const [filteredData, setFilteredData] = useState([]);
   const [currentCertificate, setCurrentCertificate] = useState(null);
-  const sortData = (key) => {
-    let direction =
-      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
-    setSortConfig({ key, direction });
 
-    const sorted = [...filteredData].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setFilteredData(sorted);
-  };
   useEffect(() => {
     const controller = new AbortController();
-
     const fetchCertificates = async () => {
       try {
         const response = await axios.get(
@@ -65,6 +52,51 @@ const WarranrtyService = () => {
 
     fetchCertificates();
   }, []);
+  useEffect(() => {
+    const checkAndUpdateResolutions = async () => {
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 5);
+
+      const updates = certificates
+        .filter(
+          (cert) =>
+            cert.rezolution === "" && new Date(cert.createdAt) <= tenDaysAgo
+        )
+        .map((cert) => ({
+          id: cert._id,
+          rezolution: "ok",
+          autoApproved: true,
+        }));
+
+      for (const update of updates) {
+        try {
+          await axios.put(
+            `https://node-kwitka.onrender.com/api/warranty/edit/${update.id}`,
+            {
+              rezolution: update.rezolution,
+              autoApproved: update.autoApproved,
+            }
+          );
+
+          setCertificates((prev) =>
+            prev.map((cert) =>
+              cert._id === update.id
+                ? {
+                    ...cert,
+                    rezolution: update.rezolution,
+                    autoApproved: update.autoApproved,
+                  }
+                : cert
+            )
+          );
+        } catch (err) {
+          console.error("Помилка оновлення резолюції", err);
+        }
+      }
+    };
+
+    checkAndUpdateResolutions();
+  }, [certificates]);
 
   useEffect(() => {
     let filtered = [...certificates];
@@ -76,8 +108,9 @@ const WarranrtyService = () => {
           .includes(searchParams.rezolution.toLowerCase())
       );
     }
-
-    setFilteredData(filtered);
+    setFilteredData(
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    );
   }, [searchParams, certificates]);
   const handleFormSubmit = async (certificateData) => {
     try {
@@ -193,15 +226,6 @@ const WarranrtyService = () => {
     window.open(pdfUrl, "_blank");
     toast.info("Завантаження PDF...");
   };
-  const getStatusIcon = (rezolution) => {
-    if (rezolution === "ok") {
-      return <FaCheck size={15} color="lightgreen" title="Погоджено" />;
-    }
-    if (rezolution === "rejected") {
-      return <MdClose size={15} color="red" title="Відхилено" />;
-    }
-    return <FiClock size={15} color="gray" title="На погодженні" />;
-  };
 
   return (
     <div>
@@ -210,9 +234,19 @@ const WarranrtyService = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
-        <div className={styles.head}>
-          <h1>Звіт по гарантійних ремонтах </h1>
+        <h1 className={styles.head}>Звіт по гарантійних ремонтах </h1>
+        <div className={styles.rules}>
+          <span>
+            *Без проведеного гарантійного талону товар клієнту не
+            відвантажується
+          </span>
+          <span>*На погодження або відхилення надається термін 5 днів</span>
+          <span>
+            *Якщо на протязі 5 днів немає підтвердження - гарантія автоматично
+            погоджена
+          </span>
         </div>
+
         <AnimatePresence>
           {showForm && (
             <motion.div

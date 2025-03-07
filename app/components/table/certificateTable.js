@@ -22,9 +22,14 @@ const CertificateTable = ({
     });
   };
 
-  const getStatusIcon = (rezolution) => {
+  const getStatusIcon = (rezolution, autoApproved) => {
     if (rezolution === "ok") {
-      return <FaCheck size={15} color="lightgreen" title="Погоджено" />;
+      return (
+        <span className={styles.checkIcon}>
+          <FaCheck size={15} />
+          {autoApproved && <p>Автоматично</p>}
+        </span>
+      );
     }
     if (rezolution === "rejected") {
       return <MdClose size={15} color="red" title="Відхилено" />;
@@ -83,23 +88,27 @@ const CertificateTable = ({
               </div>
             </td>
             <td>
-              <div>
-                <select
-                  className={styles.rezolution}
-                  name="rezolution"
-                  value={cert.rezolution || ""}
-                  onChange={(e) => onResolutionChange(cert._id, e.target.value)}
-                >
-                  <option value="">На погодженні</option>
-                  <option value="ok">Погоджено</option>
-                  <option value="rejected">Відхилено</option>
-                </select>
-              </div>
-              {cert.rezolution !== "" && (
-                <p>{new Date(cert.fixationDate).toLocaleDateString("uk-UA")}</p>
-              )}
               <div className={styles.statusIcon}>
-                {getStatusIcon(cert.rezolution)}
+                <div>
+                  <select
+                    className={styles.rezolution}
+                    name="rezolution"
+                    value={cert.rezolution || ""}
+                    onChange={(e) =>
+                      onResolutionChange(cert._id, e.target.value)
+                    }
+                  >
+                    <option value="">На погодженні</option>
+                    <option value="ok">Погоджено</option>
+                    <option value="rejected">Відхилено</option>
+                  </select>
+                </div>
+                {cert.rezolution !== "" && (
+                  <p>
+                    {new Date(cert.fixationDate).toLocaleDateString("uk-UA")}
+                  </p>
+                )}
+                <div>{getStatusIcon(cert.rezolution, cert.autoApproved)}</div>
               </div>
             </td>
           </tr>

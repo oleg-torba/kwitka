@@ -241,7 +241,7 @@
 
 .scroll {
   overflow-y: scroll;
-  height: 600px;
+  max-height: 500px;
 }
 
 .scroll::-webkit-scrollbar {
@@ -252,4 +252,32 @@
   background: #45eba8;
   outline: 1px solid darkcyan;
   border-radius: 4px;
+}
+.rules {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.rules span {
+  margin-bottom: 5px;
+}
+
+.statusIcon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.checkIcon {
+  color: lightgreen;
+  margin-top: 5px;
+  display: block;
+}
+
+.rezolution {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
