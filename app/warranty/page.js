@@ -275,7 +275,7 @@ const WarranrtyService = () => {
           {loading && <Loader />}
 
           {!loading && !error && (
-            <div>
+            <div className={styles.scroll}>
               {filteredData.length > 0 && (
                 <CertificateTable
                   data={filteredData}
