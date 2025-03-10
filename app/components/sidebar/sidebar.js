@@ -42,11 +42,13 @@ export const Sidebar = () => {
               Гарантія
             </Link>
           </li>
+          <li className={pathname === "/" ? styles.active : ""}>
+            <Link href="/" onClick={() => handleClick("/")}>
+              Звіти
+            </Link>
+          </li>
         </ul>
       </nav>
-      <div className={styles.stats}>
-        <p>Звітність</p>
-      </div>
 
       {isPending && <Loader />}
     </aside>

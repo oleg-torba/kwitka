@@ -281,3 +281,6 @@
   -moz-appearance: none;
   appearance: none;
 }
+.certificateTable tbody tr:nth-child(even) {
+  background-color: #2a2b33;
+}
