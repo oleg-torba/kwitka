@@ -21,7 +21,9 @@ const CertificateTable = ({
       day: "numeric",
     });
   };
-
+  const sortedData = data.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
   const getStatusIcon = (rezolution, autoApproved) => {
     if (rezolution === "ok") {
       return (
@@ -54,7 +56,7 @@ const CertificateTable = ({
         </tr>
       </thead>
       <tbody>
-        {data.map((cert) => (
+        {sortedData.map((cert) => (
           <tr key={cert._id}>
             <td>{cert.repairNumber}</td>
             <td>{formatDate(cert.createdAt)}</td>
