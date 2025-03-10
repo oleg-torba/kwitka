@@ -20,6 +20,7 @@
     "formidable": "^3.5.2",
     "framer-motion": "^12.4.1",
     "jspdf": "^2.5.2",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.475.0",
     "mongoose": "^8.9.5",
     "next": "^15.1.7",

@@ -5,10 +5,6 @@ import styles from "./page.module.css";
 import axios from "axios";
 import UploadCertificate from "../components/form/addCertificateForm";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiClock } from "react-icons/fi";
-import { FaCheck } from "react-icons/fa";
-import { MdClose } from "react-icons/md";
-
 import Loader from "../components/loader/loader";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
@@ -29,29 +25,32 @@ const WarranrtyService = () => {
   });
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-
+  const [showModal, setShowModal] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
   const [currentCertificate, setCurrentCertificate] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
     const fetchCertificates = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           `https://node-kwitka.onrender.com/api/warranty`,
           { signal: controller.signal }
         );
         setCertificates(response.data.data);
-        setLoading(false);
       } catch (err) {
         if (axios.isCancel(err)) return;
         setError(err);
         toast.error("Помилка при завантаженні даних");
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchCertificates();
+    return () => controller.abort();
   }, []);
+
   useEffect(() => {
     const checkAndUpdateResolutions = async () => {
       const tenDaysAgo = new Date();
@@ -68,34 +67,36 @@ const WarranrtyService = () => {
           autoApproved: true,
         }));
 
-      for (const update of updates) {
-        try {
-          await axios.put(
-            `https://node-kwitka.onrender.com/api/warranty/edit/${update.id}`,
-            {
-              rezolution: update.rezolution,
-              autoApproved: update.autoApproved,
-            }
-          );
+      if (updates.length === 0) return;
 
-          setCertificates((prev) =>
-            prev.map((cert) =>
-              cert._id === update.id
-                ? {
-                    ...cert,
-                    rezolution: update.rezolution,
-                    autoApproved: update.autoApproved,
-                  }
-                : cert
+      try {
+        await Promise.all(
+          updates.map(({ id, rezolution, autoApproved }) =>
+            axios.put(
+              `https://node-kwitka.onrender.com/api/warranty/edit/${id}`,
+              {
+                rezolution,
+                autoApproved,
+              }
             )
-          );
-        } catch (err) {
-          console.error("Помилка оновлення резолюції", err);
-        }
+          )
+        );
+
+        setCertificates((prev) =>
+          prev.map((cert) =>
+            updates.find((upd) => upd.id === cert._id)
+              ? { ...cert, rezolution: "ok", autoApproved: true }
+              : cert
+          )
+        );
+      } catch (err) {
+        console.error("Помилка оновлення резолюції", err);
       }
     };
 
-    checkAndUpdateResolutions();
+    if (certificates.length > 0) {
+      checkAndUpdateResolutions();
+    }
   }, [certificates]);
 
   useEffect(() => {
@@ -108,10 +109,14 @@ const WarranrtyService = () => {
           .includes(searchParams.rezolution.toLowerCase())
       );
     }
-    setFilteredData(
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    const sortedData = filtered.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
-  }, [searchParams, certificates]);
+
+    setFilteredData(sortedData);
+  }, [certificates, searchParams.rezolution]);
+
   const handleFormSubmit = async (certificateData) => {
     try {
       let response;
@@ -146,6 +151,7 @@ const WarranrtyService = () => {
   const handleAddCertificate = async (id) => {
     if (id) {
       setPendingAction(() => async () => {
+        setLoading(true);
         try {
           const response = await axios.get(
             `https://node-kwitka.onrender.com/api/warranty/${id}`
@@ -184,8 +190,9 @@ const WarranrtyService = () => {
     if (password === "1122") {
       if (pendingAction) {
         pendingAction();
-        setPasswordModalOpen(false);
+        setPendingAction(null);
       }
+      setPasswordModalOpen(false);
     } else {
       toast.error("Невірний пароль!");
     }
@@ -193,20 +200,24 @@ const WarranrtyService = () => {
 
   const handleResolutionChange = async (id, newResolution) => {
     try {
-      const updateData = { rezolution: newResolution };
+      const updateData = {
+        rezolution: newResolution,
+        fixationDate: ["ok", "rejected"].includes(newResolution)
+          ? new Date().toISOString()
+          : undefined,
+      };
 
-      if (["ok", "rejected"].includes(newResolution)) {
-        updateData.fixationDate = new Date().toISOString();
-      }
+      setCertificates((prev) =>
+        prev.map((cert) =>
+          cert._id === id ? { ...cert, ...updateData } : cert
+        )
+      );
 
-      const { data } = await axios.put(
+      await axios.put(
         `https://node-kwitka.onrender.com/api/warranty/${id}`,
         updateData
       );
 
-      setCertificates((prev) =>
-        prev.map((cert) => (cert._id === id ? data : cert))
-      );
       toast.success("Дані успішно оновлено.");
     } catch (err) {
       toast.error("Помилка оновлення даних.");
@@ -229,6 +240,7 @@ const WarranrtyService = () => {
 
   return (
     <div>
+      {loading && <Loader />}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -294,7 +306,28 @@ const WarranrtyService = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
+        <AnimatePresence>
+          {showModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
+              <div className={styles.modal}>
+                <div className={styles.modalContent}>
+                  <span
+                    className={styles.close}
+                    onClick={() => setShowModal(false)}
+                  >
+                    &times;
+                  </span>
+                  <h3>В базі даних відсутні записи по заданому параметру</h3>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className={styles.searchForm}>
           <div>
             <span
@@ -305,12 +338,11 @@ const WarranrtyService = () => {
             </span>
           </div>
         </div>
-        <div className={styles.filterBlock}>
-          {loading && <Loader />}
 
+        <div className={styles.filterBlock}>
           {!loading && !error && (
-            <div className={styles.scroll}>
-              {filteredData.length > 0 && (
+            <>
+              <div className={styles.scroll}>
                 <CertificateTable
                   data={filteredData}
                   onEdit={handleAddCertificate}
@@ -318,16 +350,16 @@ const WarranrtyService = () => {
                   onDownload={redirectToPDF}
                   onResolutionChange={handleResolutionChange}
                 />
-              )}
-            </div>
+              </div>
+
+              <FilterComponent
+                showModal={showModal}
+                setShowModal={setShowModal}
+                data={certificates}
+                setFilteredData={setFilteredData}
+              />
+            </>
           )}
-          {certificates.length > 0 && (
-            <FilterComponent
-              data={certificates}
-              setFilteredData={setFilteredData}
-            />
-          )}
-          {filteredData.length < 0 && <p>Не вдалось завантажити дані</p>}
         </div>
       </motion.div>
       <ToastContainer />

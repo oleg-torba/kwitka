@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
+import { debounce } from "lodash"; // Імпортуємо lodash для debounce
 
-const FilterComponent = ({ setFilteredData }) => {
+const FilterComponent = ({
+  setFilteredData,
+  data,
+  showModal,
+  setShowModal,
+}) => {
   const [repairNumber, setRepairNumber] = useState("");
   const [certificateNumber, setCertificateNumber] = useState("");
   const [reporting, setReporting] = useState("");
@@ -31,14 +37,35 @@ const FilterComponent = ({ setFilteredData }) => {
         }
       );
       const data = await response.json();
-      console.log("Отримані дані:", data);
+
       setFilteredData(data);
+      if (data.length < 1) {
+        setShowModal(true);
+      }
     } catch (error) {
-      alert(error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const debouncedFetchData = debounce(fetchData, 1000);
+
+  useEffect(() => {
+    debouncedFetchData();
+
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [
+    repairNumber,
+    certificateNumber,
+    reporting,
+    startDate,
+    endDate,
+    brand,
+    rezolution,
+  ]);
 
   const resetFilters = () => {
     setRepairNumber("");
@@ -48,7 +75,6 @@ const FilterComponent = ({ setFilteredData }) => {
     setEndDate("");
     setBrand("");
     setRezolution("");
-    fetchData();
   };
 
   return (
@@ -59,6 +85,7 @@ const FilterComponent = ({ setFilteredData }) => {
           value={repairNumber}
           onChange={(e) => setRepairNumber(e.target.value)}
           placeholder="Номер ремонту"
+          disabled={showModal}
         />
       </div>
 
@@ -68,6 +95,7 @@ const FilterComponent = ({ setFilteredData }) => {
           value={certificateNumber}
           onChange={(e) => setCertificateNumber(e.target.value)}
           placeholder="Номер талону"
+          disabled={showModal}
         />
       </div>
 
@@ -77,6 +105,7 @@ const FilterComponent = ({ setFilteredData }) => {
           value={reporting}
           onChange={(e) => setReporting(e.target.value)}
           placeholder="Клієнт"
+          disabled={showModal}
         />
       </div>
 
@@ -87,12 +116,14 @@ const FilterComponent = ({ setFilteredData }) => {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
+          disabled={showModal}
         />
         <input
           className={styles.dateInput}
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
+          disabled={showModal}
         />
       </div>
 
@@ -115,23 +146,6 @@ const FilterComponent = ({ setFilteredData }) => {
           <option value="rejected">Відхилено</option>
           <option value="pending">На погодженні</option>
         </select>
-      </div>
-
-      <div className={styles.buttonGroup}>
-        <button
-          className={styles.applyBtn}
-          onClick={fetchData}
-          disabled={loading}
-        >
-          {loading ? <div className={styles.loader}></div> : "Застосувати"}
-        </button>
-        <button
-          className={styles.clearBtn}
-          onClick={resetFilters}
-          disabled={loading}
-        >
-          Скинути
-        </button>
       </div>
     </div>
   );

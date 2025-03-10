@@ -5,7 +5,7 @@ import "./globals.css";
 
 import { Sidebar } from "./components/sidebar/sidebar";
 
-const socket = io("https://node-kwitka.onrender.com"); // Заміни на свою адресу сервера
+const socket = io("https://node-kwitka.onrender.com");
 
 export default function RootLayout({ children }) {
   const audioContextRef = useRef(null);
