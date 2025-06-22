@@ -240,6 +240,8 @@ export default function UploadCertificate({ onSubmit, certificate }) {
               <option value="">Не вказано</option>
               <option value="Олег">Олег</option>
               <option value="Денис">Денис</option>
+              <option value="Віталік">Віталік</option>
+              <option value="Ярослав">Ярослав</option>
               <option value="Авіна">Авіна</option>
             </select>
           </div>
