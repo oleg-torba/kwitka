@@ -24,19 +24,6 @@ export const Sidebar = () => {
           <FaHome />
         </Link>
         <ul className={styles.headerList}>
-          <li className={pathname === "/nomenclature" ? styles.active : ""}>
-            <Link
-              href="/nomenclature"
-              onClick={() => handleClick("/nomenclature")}
-            >
-              Номенклатура
-            </Link>
-          </li>
-          <li className={pathname === "/reserve" ? styles.active : ""}>
-            <Link href="/reserve" onClick={() => handleClick("/reserve")}>
-              Резерв
-            </Link>
-          </li>
           <li className={pathname === "/warranty" ? styles.active : ""}>
             <Link href="/warranty" onClick={() => handleClick("/warranty")}>
               Гарантія
