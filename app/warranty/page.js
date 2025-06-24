@@ -51,58 +51,54 @@ const WarranrtyService = () => {
     return () => controller.abort();
   }, []);
 
-  const checkAndUpdateResolutions = useCallback(async () => {
-    const now = new Date();
-
-    const updates = certificates
-      .filter((cert) => {
-        if (cert.rezolution !== "") return false;
-
-        const createdAt = new Date(cert.createdAt);
-        const autoApprovalDate = new Date(createdAt);
-        autoApprovalDate.setDate(autoApprovalDate.getDate() + 5);
-
-        return now >= autoApprovalDate;
-      })
-      .map((cert) => ({
-        id: cert._id,
-        rezolution: "ok",
-        autoApproved: true,
-        fixationDate: new Date().toISOString(),
-      }));
-
-    if (updates.length === 0) return;
-
-    try {
-      await Promise.all(
-        updates.map(({ id, ...rest }) =>
-          axios.put(
-            `https://node-kwitka.onrender.com/api/warranty/edit/${id}`,
-            rest
-          )
-        )
-      );
-
-      setCertificates((prev) =>
-        prev.map((cert) =>
-          updates.find((upd) => upd.id === cert._id)
-            ? { ...cert, ...updates.find((upd) => upd.id === cert._id) }
-            : cert
-        )
-      );
-
-      toast.success("Автоматично погоджено прострочені сертифікати");
-    } catch (err) {
-      console.error("Помилка оновлення резолюції", err);
-      toast.error("Помилка при автопогодженні");
-    }
-  }, [certificates]);
-
   useEffect(() => {
+    const checkAndUpdateResolutions = async () => {
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 5);
+
+      const updates = certificates
+        .filter(
+          (cert) =>
+            cert.rezolution === "" && new Date(cert.createdAt) <= tenDaysAgo
+        )
+        .map((cert) => ({
+          id: cert._id,
+          rezolution: "ok",
+          autoApproved: true,
+          fixationDate: new Date().toISOString(),
+        }));
+
+      if (updates.length === 0) return;
+
+      try {
+        await Promise.all(
+          updates.map(({ id, rezolution, autoApproved }) =>
+            axios.put(
+              `https://node-kwitka.onrender.com/api/warranty/edit/${id}`,
+              {
+                rezolution,
+                autoApproved,
+              }
+            )
+          )
+        );
+
+        setCertificates((prev) =>
+          prev.map((cert) =>
+            updates.find((upd) => upd.id === cert._id)
+              ? { ...cert, rezolution: "ok", autoApproved: true }
+              : cert
+          )
+        );
+      } catch (err) {
+        console.error("Помилка оновлення резолюції", err);
+      }
+    };
+
     if (certificates.length > 0) {
       checkAndUpdateResolutions();
     }
-  }, [certificates, checkAndUpdateResolutions]);
+  }, [certificates]);
 
   useEffect(() => {
     let filtered = [...certificates];
@@ -252,7 +248,6 @@ const WarranrtyService = () => {
         transition={{ duration: 0.7 }}
       >
         <h1 className={styles.head}>Звіт по гарантійних ремонтах </h1>
-
         <div className={styles.rules}>
           <span>
             *Без проведеного гарантійного талону товар клієнту не
@@ -335,9 +330,6 @@ const WarranrtyService = () => {
           )}
         </AnimatePresence>
         <div className={styles.searchForm}>
-          <span className={styles.newBtn} onClick={checkAndUpdateResolutions}>
-            Запустити авто-погодження
-          </span>
           <div>
             <span
               className={styles.newBtn}
