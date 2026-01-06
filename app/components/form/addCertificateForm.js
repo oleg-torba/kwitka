@@ -14,6 +14,7 @@ export default function UploadCertificate({ onSubmit, certificate }) {
   const [manager, setManager] = useState("");
   const [brand, setBrand] = useState("");
   const [uploading, setUploading] = useState(false);
+  
 
   useEffect(() => {
     if (certificate) {
@@ -239,8 +240,12 @@ export default function UploadCertificate({ onSubmit, certificate }) {
             >
               <option value="">Не вказано</option>
               <option value="Олег">Олег</option>
+              <option value="Роман">Роман</option>
+                 <option value="Віталік">Віталік</option>
+                    <option value="Андрій">Анлрій</option>
+                       <option value="Мартин">Мартин</option>
               <option value="Денис">Денис</option>
-              <option value="Віталік">Віталік</option>
+           
               <option value="Ярослав">Ярослав</option>
               <option value="Авіна">Авіна</option>
             </select>

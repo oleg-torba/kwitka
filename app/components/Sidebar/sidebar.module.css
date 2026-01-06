@@ -1,0 +1,105 @@
+.sidebar {
+  margin-left: 50px;
+  background-color: #f0f0f0;
+  padding: 20px;
+   height: 100vh;
+   overflow-y: scroll;
+  -webkit-overflow-scrolling: scroll;
+
+}
+.sidebar::-webkit-scrollbar {
+  display: none;             
+} 
+.sidebar button {
+  cursor: pointer;
+  padding: 5px;
+  margin-right: 5px;
+  background-color: white;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid grey;
+  font-size: 14px;
+  &:hover {
+    background-color: #e0e0e0;
+  }
+}
+.pdfBtn {
+  cursor: pointer;
+  display: inline-block;
+  padding: 5px;
+  margin-right: 5px;
+  background-color: white;
+  font-weight: 600;
+  color: black;
+  text-decoration: none;
+  border-radius: 5px;
+  border: 1px solid grey;
+  font-size: 14px;
+  &:hover {
+    background-color: #e0e0e0;
+  }
+}
+.archiveBtn {
+  color: darkred;
+}
+.sidebarContent {
+  font-size: 24px;
+  font-weight: 500;
+  margin-left: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.sidebarContentBlock {
+  box-shadow: -6px 0 12px rgba(16, 24, 40, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  margin-top: 20px;
+  background-color: #fff;
+  padding: 20px 10px;
+  font-size: 18px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.sidebarContentBlock li {
+  list-style-type: none;
+  margin-bottom: 20px;
+  border-bottom: 1px solid grey;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.sidebarContentBlock li p {
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+.sidebarContentBlock li span {
+  font-weight: 600;
+}
+.selectBtn {
+   cursor: pointer;
+  padding: 5px;
+  margin-right: 5px;
+  background-color: white;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid grey;
+  font-size: 14px;
+  &:hover {
+    background-color: #e0e0e0;
+  }
+
+  appearance: none; 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+ 
+}
+.imageBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.imageBox a {
+  margin-top: 10px;
+}

@@ -1,286 +1,87 @@
-.head {
-  display: flex;
-  justify-content: center;
-}
-.img {
-  width: 100px;
-  height: 100px;
-}
 
-.list {
-  display: flex;
-}
-
-.certificateTable {
-  min-width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.5s;
-}
-
-.certificateTable th,
-.certificateTable td {
-  padding: 10px;
-  max-width: 180px;
-  resize: none;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  text-align: center;
-  border: 1px solid #ddd;
-}
-
-.certificateTable th {
-  background-color: rgba(46, 46, 46, 0.8);
-}
-
-.modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.modalContent {
-  background-color: black;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
-  position: relative;
-  animation: scaleUp 0.3s ease-in-out;
-}
-
-@keyframes scaleUp {
-  from {
-    transform: scale(0.8);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-.close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 30px;
+ .addBtn {
   cursor: pointer;
+  padding: 10px 20px;
+  background-color: #1976D2;
   color: white;
-}
-
-.searchForm {
-  margin-bottom: 20px;
-  background-color: transparent;
-  display: flex;
-  margin-top: 25px;
-  margin-bottom: 25px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.searchForm button {
-  padding: 8px 16px;
-}
-
-.newBtn {
-  cursor: pointer;
-  padding: 5px 20px;
-  background-color: #45eba8;
-  color: black;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid white;
   font-size: 14px;
   text-align: center;
-}
-
-.filterBlock {
-  display: flex;
-  align-items: flex-start;
-}
-
-.searchBlock {
-  display: flex;
-  align-items: center;
-}
-
-.rezolution {
-  background-color: transparent;
-  color: white;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  text-align: center;
-  outline: none;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.rezolution:hover {
-  color: pink;
-}
-
-.rezolution:focus {
-  outline: none;
-}
-
-.rezolution option {
-  background-color: #121317;
-  text-align: center;
-}
-
-.date {
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-.tooltipWrapper {
-  position: relative;
-  display: inline-block;
-  text-align: center;
-}
-
-.tooltip {
-  visibility: hidden;
-  background-color: black;
-  color: white;
-  text-align: center;
-  padding: 5px;
-  border-radius: 4px;
-  position: absolute;
-  bottom: 100%;
-  left: 20%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 12px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltipWrapper:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-.iconsBlock {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.icon {
-  cursor: pointer;
-  transition: transform 0.2s, color 0.2s;
-  margin-right: 7px;
-  &:last-child {
-    margin-right: 0;
+  margin-bottom: 15px;
+  &:hover {
+    background-color: #1565C0;
   }
-}
-
-.icon:hover {
-  color: lightskyblue;
-
-  transform: scale(1.2);
-}
-
-.disabled {
-  color: darkgray;
-}
-
-.user span {
-  line-height: 2;
-}
-
-.formInput {
-  display: flex;
-  flex-direction: column;
-  margin-top: 25px;
-  font-weight: 600;
-  min-width: 300px;
-  border-radius: 5px;
-  outline: none;
-  height: 30px;
-  border: none;
-}
-
-.passBtn {
-  width: 100px;
-  margin-top: 20px;
-  padding: 5px;
-  background-color: green;
-  color: white;
-  border-radius: 4px;
-}
-
-.passForm {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.passTitle {
-  font-size: 14px;
+ }
+.certificateTable {
+  border-collapse: collapse;
+min-width: 700px;
+width: 100%;
+  font-size: 13px;
+  max-width: 100%;
+   
   text-align: center;
 }
 
-.scroll {
-  overflow-y: scroll;
-  max-height: 500px;
+
+.certificateTable thead th {
+  background-color: #f0f0f0;
+  padding: 8px;
+  text-align: center;
+
 }
 
-.scroll::-webkit-scrollbar {
-  width: 4px;
+.certificateTable tbody td {
+  padding: 8px;
+  border-bottom: 3px solid #e0e0e0;
+  font-weight: 500;
+  text-align: center;
 }
 
-.scroll::-webkit-scrollbar-thumb {
-  background: #45eba8;
-  outline: 1px solid darkcyan;
-  border-radius: 4px;
+
+.certificateTable tbody tr:hover {
+  background-color: #e0e0e0;
+  cursor: pointer; 
 }
-.rules {
+.mainContainer {
   display: flex;
-  flex-direction: column;
-  font-size: 12px;
-}
+  justify-content: center;
+  height: 100vh;
+   overflow-y: scroll;
+  -webkit-overflow-scrolling: scroll;
 
-.rules span {
-  margin-bottom: 5px;
 }
-
-.statusIcon {
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f0f0f0;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
-
-.checkIcon {
-  color: lightgreen;
-  margin-top: 5px;
-  display: block;
+.closeBtn {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  font-size: 16px;
+  cursor: pointer;
 }
-
-.rezolution {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-.certificateTable tbody tr:nth-child(even) {
-  background-color: #2a2b33;
+.roleBtn {
+  cursor: pointer;
+  padding: 10px 20px;
+  color: black;
+  background-color: #e0e0e0;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 0.5px solid black;
+  font-size: 14px;
+  text-align: center;
+  &:hover {
+    background-color: lightskyblue;
+  }
 }

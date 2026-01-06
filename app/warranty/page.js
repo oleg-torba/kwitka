@@ -1,371 +1,208 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import styles from "./page.module.css";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import UploadCertificate from "../components/form/addCertificateForm";
-import { motion, AnimatePresence } from "framer-motion";
-import Loader from "../components/loader/loader";
-import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
-import PasswordModal from "../components/Modal/passwordModal";
-import FilterComponent from "../components/filterPanel/filterPanel";
+import styles from "./page.module.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import CertificateTable from "../components/table/certificateTable";
+import Sidebar from "../components/Sidebar/sidebar";
+import CertificateForm from "../components/form/masterForm";
 
-const WarranrtyService = () => {
+
+const WarrantyPage = () => {
+  const [selectedItem, setSelectedItem] = useState(null);
   const [certificates, setCertificates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [searchParams, setSearchParams] = useState({
-    brand: "",
-    saleDate: null,
-    manager: "",
-    rezolution: "",
-  });
-  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState(null);
-  const [showModal, setShowModal] = useState(null);
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentCertificate, setCurrentCertificate] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    const controller = new AbortController();
     const fetchCertificates = async () => {
-      setLoading(true);
       try {
         const response = await axios.get(
-          `https://node-kwitka.onrender.com/api/warranty`,
-          { signal: controller.signal }
+          "https://kwitka.onrender.com/api/warranty"
         );
         setCertificates(response.data.data);
-      } catch (err) {
-        if (axios.isCancel(err)) return;
-        setError(err);
-        toast.error("Помилка при завантаженні даних");
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error(error.message);
       }
     };
     fetchCertificates();
-    return () => controller.abort();
   }, []);
 
-  useEffect(() => {
-    const checkAndUpdateResolutions = async () => {
-      const tenDaysAgo = new Date();
-      tenDaysAgo.setDate(tenDaysAgo.getDate() - 5);
+  const handleAddClick = () => {
+    setShowRoleSelect(true);
+  };
 
-      const updates = certificates
-        .filter(
-          (cert) =>
-            cert.rezolution === "" && new Date(cert.createdAt) <= tenDaysAgo
-        )
-        .map((cert) => ({
-          id: cert._id,
-          rezolution: "ok",
-          autoApproved: true,
-          fixationDate: new Date().toISOString(),
-        }));
 
-      if (updates.length === 0) return;
+  const handleRoleSelect = (role) => {
+    setUserRole(role);
+    console.log("Вибрана роль:", role);
+    setShowRoleSelect(false);
+    setShowForm(true);
+  };
+const handleDeleteCertificate = async (id) => {
+  if (!id) {
+    console.warn("ID відсутній");
+    return;
+  }
 
-      try {
-        await Promise.all(
-          updates.map(({ id, rezolution, autoApproved }) =>
-            axios.put(
-              `https://node-kwitka.onrender.com/api/warranty/edit/${id}`,
-              {
-                rezolution,
-                autoApproved,
-              }
-            )
-          )
-        );
+  const confirmDelete = window.confirm(
+    "Ви впевнені, що хочете видалити сертифікат? Дію не можна скасувати."
+  );
 
-        setCertificates((prev) =>
-          prev.map((cert) =>
-            updates.find((upd) => upd.id === cert._id)
-              ? { ...cert, rezolution: "ok", autoApproved: true }
-              : cert
-          )
-        );
-      } catch (err) {
-        console.error("Помилка оновлення резолюції", err);
-      }
-    };
+  if (!confirmDelete) return;
 
-    if (certificates.length > 0) {
-      checkAndUpdateResolutions();
-    }
-  }, [certificates]);
-
-  useEffect(() => {
-    let filtered = [...certificates];
-
-    if (searchParams.rezolution) {
-      filtered = filtered.filter((cert) =>
-        cert.rezolution
-          ?.toLowerCase()
-          .includes(searchParams.rezolution.toLowerCase())
-      );
-    }
-
-    const sortedData = filtered.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  try {
+    await axios.delete(
+      `https://kwitka.onrender.com/api/warranty/${id}`
     );
 
-    setFilteredData(sortedData);
-  }, [certificates, searchParams.rezolution]);
+    setCertificates((prev) =>
+      prev.filter((cert) => cert._id !== id)
+    );
 
-  const handleFormSubmit = async (certificateData) => {
-    try {
-      let response;
-      if (certificateData._id) {
-        response = await axios.put(
-          `https://node-kwitka.onrender.com/api/warranty/${certificateData._id}`,
-          certificateData
-        );
-      } else {
-        response = await axios.post(
-          "https://node-kwitka.onrender.com/api/warranty/addWarranty",
-          certificateData
-        );
-      }
+    setSelectedItem(null);
+    toast.success("Сертифікат видалено");
+  } catch (err) {
+    console.error(err);
+    toast.error("Помилка видалення");
+  }
+};
 
-      setCertificates((prev) => {
-        if (certificateData._id) {
-          return prev.map((cert) =>
-            cert._id === response.data.data_id ? response.data.data : cert
-          );
-        }
-        return [...prev, response.data.data];
-      });
 
-      setShowForm(false);
-      toast.success("Дані успішно оновлено.");
-    } catch (err) {
-      toast.error("Помилка при оновленні даних.");
-    }
-  };
+  const handleFormSubmit = async (data) => {
+  if (!data) {
+    console.warn("handleFormSubmit викликано без data");
+    return;
+  }
 
-  const handleAddCertificate = async (id) => {
-    if (id) {
-      setPendingAction(() => async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(
-            `https://node-kwitka.onrender.com/api/warranty/${id}`
-          );
-          setCurrentCertificate(response.data);
-          setLoading(false);
-          setShowForm(true);
-        } catch (err) {
-          setError("Не вдалося завантажити сертифікат.");
-          toast.error("Не вдалося завантажити сертифікат.");
-        }
-      });
-      setPasswordModalOpen(true);
-    } else {
-      setCurrentCertificate(null);
-      setShowForm(true);
-    }
-  };
+  try {
+    let response;
 
-  const handleDeleteCertificate = useCallback((id) => {
-    setPendingAction(() => async () => {
-      try {
-        await axios.delete(
-          `https://node-kwitka.onrender.com/api/warranty/${id}`
-        );
-        setCertificates((prev) => prev.filter((cert) => cert._id !== id));
-        toast.success("Сертифікат успішно видалено!");
-      } catch (err) {
-        toast.error("Не вдалося видалити сертифікат.");
-      }
-    });
-    setPasswordModalOpen(true);
-  }, []);
+    if (data._id) {
+      console.log("Редагування сертифіката", data);
 
-  const handlePasswordCheck = (password) => {
-    if (password === "1122") {
-      if (pendingAction) {
-        pendingAction();
-        setPendingAction(null);
-      }
-      setPasswordModalOpen(false);
-    } else {
-      toast.error("Невірний пароль!");
-    }
-  };
-
-  const handleResolutionChange = async (id, newResolution) => {
-    try {
-      const updateData = {
-        rezolution: newResolution,
-        fixationDate: ["ok", "rejected"].includes(newResolution)
-          ? new Date().toISOString()
-          : undefined,
-      };
+      response = await axios.put(
+        `https://kwitka.onrender.com/api/warranty/edit/${data._id}`,
+        data
+      );
 
       setCertificates((prev) =>
         prev.map((cert) =>
-          cert._id === id ? { ...cert, ...updateData } : cert
+          cert._id === data._id ? response.data : cert
         )
       );
-
-      await axios.put(
-        `https://node-kwitka.onrender.com/api/warranty/${id}`,
-        updateData
+    } else {
+      response = await axios.post(
+        "https://kwitka.onrender.com/api/warranty/addWarranty",
+        data
       );
 
-      toast.success("Дані успішно оновлено.");
-    } catch (err) {
-      toast.error("Помилка оновлення даних.");
+      setCertificates((prev) => [...prev, response.data]);
     }
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("uk-UA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const redirectToPDF = (pdfUrl) => {
-    window.open(pdfUrl, "_blank");
-    toast.info("Завантаження PDF...");
-  };
 
   return (
-    <div>
-      {loading && <Loader />}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h1 className={styles.head}>Звіт по гарантійних ремонтах </h1>
-        <div className={styles.rules}>
-          <span>
-            *Без проведеного гарантійного талону товар клієнту не
-            відвантажується
-          </span>
-          <span>*На погодження або відхилення надається термін 5 днів</span>
-          <span>
-            *Якщо на протязі 5 днів немає підтвердження - гарантія автоматично
-            погоджена
-          </span>
-        </div>
-
-        <AnimatePresence>
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7 }}
+    <>
+      <button className={styles.addBtn} onClick={handleAddClick}>
+        Додати
+      </button>
+      {showRoleSelect && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <button
+              className={styles.closeBtn}
+              onClick={() => setShowRoleSelect(false)}
             >
-              <div className={styles.modal}>
-                <div className={styles.modalContent}>
-                  <span
-                    className={styles.close}
-                    onClick={() => setShowForm(false)}
-                  >
-                    &times;
-                  </span>
-                  <UploadCertificate
-                    onSubmit={handleFormSubmit}
-                    certificate={currentCertificate}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {isPasswordModalOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
-              <div className={styles.modal}>
-                <div className={styles.modalContent}>
-                  <span
-                    className={styles.close}
-                    onClick={() => setPasswordModalOpen(false)}
-                  >
-                    &times;
-                  </span>
-                  <PasswordModal onConfirm={handlePasswordCheck} />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {showModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
-              <div className={styles.modal}>
-                <div className={styles.modalContent}>
-                  <span
-                    className={styles.close}
-                    onClick={() => setShowModal(false)}
-                  >
-                    &times;
-                  </span>
-                  <h3>В базі даних відсутні записи по заданому параметру</h3>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className={styles.searchForm}>
-          <div>
-            <span
-              className={styles.newBtn}
-              onClick={() => handleAddCertificate(null)}
-            >
-              Додати
-            </span>
+              ✖
+            </button>
+            <h3>Хто буде оформлювати сертифікат?</h3>
+            <div style={{ display: "flex", gap: "20px", marginTop: "15px" }}>
+              <button
+                className={styles.roleBtn}
+                onClick={() => handleRoleSelect("master")}
+              >
+                Майстер
+              </button>
+              <button
+                className={styles.roleBtn}
+                onClick={() => handleRoleSelect("manager")}
+              >
+                Менеджер
+              </button>
+            </div>
+            
           </div>
         </div>
+      )}
 
-        <div className={styles.filterBlock}>
-          {!loading && !error && (
-            <>
-              <div className={styles.scroll}>
-                <CertificateTable
-                  data={filteredData}
-                  onEdit={handleAddCertificate}
-                  onDelete={handleDeleteCertificate}
-                  onDownload={redirectToPDF}
-                  onResolutionChange={handleResolutionChange}
-                />
-              </div>
+      {showForm && userRole && (
+  <div className={styles.modalOverlay}>
+    <div className={styles.modalContent}>
+      <button
+        className={styles.closeBtn}
+        onClick={() => {
+          setShowForm(false);
+          setUserRole(null);
+        }}
+      >
+        ✖
+      </button>
 
-              <FilterComponent
-                showModal={showModal}
-                setShowModal={setShowModal}
-                data={certificates}
-                setFilteredData={setFilteredData}
-              />
-            </>
-          )}
-        </div>
-      </motion.div>
-      <ToastContainer />
+     <CertificateForm
+  role={userRole}
+  mode={selectedItem ? "edit" : "create"}
+  initialData={selectedItem}
+  onSubmit={handleFormSubmit}
+/>
+
+     
     </div>
+  </div>
+)}
+      <div className={styles.mainContainer}>
+        <CertificateTable
+          data={certificates}
+          onRowClick={(item) => setSelectedItem(item)}
+        />
+        {selectedItem && (
+  <div className={styles.modalOverlay} onClick={() => setSelectedItem(null)}>
+    <div
+      className={styles.sidebarModal}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        className={styles.closeBtn}
+        onClick={() => setSelectedItem(null)}
+      >
+        ✖
+      </button>
+
+      <Sidebar
+       item={selectedItem}
+          isOpen={!!selectedItem}
+          onUpdate={handleFormSubmit}
+          onClose={() => setSelectedItem(null)}
+          onDelete={handleDeleteCertificate}
+        onEdit={() => {
+          setUserRole("manager");
+          setShowForm(true);
+        }}
+      />
+    </div>
+  </div>
+)}
+
+        
+      </div>
+    </>
   );
 };
 
-export default WarranrtyService;
+export default WarrantyPage;

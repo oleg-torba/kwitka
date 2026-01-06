@@ -1,8 +1,6 @@
 "use client";
-import Link from "next/link";
 import styles from "./styles.module.css";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 
 export default function Home() {
   const [updates, setUpdates] = useState([]);
@@ -22,21 +20,7 @@ export default function Home() {
     return `${formattedDate} ${formattedTime}`;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(
-          "https://node-kwitka.onrender.com/api/reserve/update"
-        );
-        const data = await res.json();
-        setUpdates(data);
-      } catch (error) {
-        console.error("Помилка завантаження даних:", error);
-      }
-    };
 
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,26 +41,11 @@ export default function Home() {
   return (
     <>
       <div className={styles.main}>
+      
         <h2>Останні записи</h2>
+         <h2>
+          <a href="/warranty">Головна сторінка</a></h2>
         <div>
-          <div className={styles.reserveBlock}>
-            <h3>Резерви</h3>
-            <ul className={styles.updateBlock}>
-              {updates.length > 0 ? (
-                updates.map((update) => (
-                  <li key={update._id} className={styles.updateList}>
-                    <span>{update.repairNumber}</span>
-                    <span>{update.approvalStatus}</span>
-                    <span className={styles.date}>
-                      {formatDate(update.requestDate)}
-                    </span>
-                  </li>
-                ))
-              ) : (
-                <p>Немає оновлень</p>
-              )}
-            </ul>
-          </div>
           <div>
             <div className={styles.reserveBlock}>
               <h3>Гарантійки</h3>
