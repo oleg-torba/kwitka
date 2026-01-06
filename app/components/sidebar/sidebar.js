@@ -3,7 +3,7 @@ import { FaUserClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import styles from "./sidebar.module.css";
 import CertificateForm from "../form/masterForm";
 import { useState } from "react";
-const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
+export const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
     const [showEditForm, setShowEditForm] = useState(false);
 
   if (!isOpen) return null;
@@ -162,4 +162,3 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
     </div>
   );
 };
-export default Sidebar;
