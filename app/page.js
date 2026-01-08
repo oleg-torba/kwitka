@@ -26,7 +26,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://node-kwitka.onrender.com/api/warranty/update"
+          "http://localhost:3001/api/warranty/update"
         );
         const data = await res.json();
         console.log(data);

@@ -14,15 +14,21 @@
     background-color: #1565C0;
   }
  }
+
 .certificateTable {
   border-collapse: collapse;
 min-width: 700px;
 width: 100%;
   font-size: 13px;
-  max-width: 100%;
    
   text-align: center;
 }
+  .certificateTable {
+ @media screen and(max-width:767px) {
+
+  width:340px;
+}}
+
 
 
 .certificateTable thead th {
@@ -70,6 +76,10 @@ width: 100%;
   right: 10%;
   font-size: 16px;
   cursor: pointer;
+}
+@media screen and (max-width: 767px) {
+ top: 5%;
+ right: 100%;
 }
 .roleBtn {
   cursor: pointer;
