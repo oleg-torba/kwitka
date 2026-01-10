@@ -1,15 +1,18 @@
 .sidebar {
-  margin-left: 50px;
   background-color: #f0f0f0;
   padding: 20px;
-   height: 100vh;
-   overflow-y: scroll;
-  -webkit-overflow-scrolling: scroll;
+  
 
 }
-.sidebar::-webkit-scrollbar {
-  display: none;             
-} 
+
+.closeBtn {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
 .sidebar button {
   cursor: pointer;
   padding: 5px;
@@ -48,6 +51,7 @@
   margin-left: 10px;
   padding: 10px;
   text-align: center;
+
 }
 .sidebarContentBlock {
   box-shadow: -6px 0 12px rgba(16, 24, 40, 0.08);
@@ -57,9 +61,14 @@
   padding: 20px 10px;
   font-size: 18px;
   border-radius: 5px;
+  height: 150px;
   margin-bottom: 20px;
+     overflow-y: scroll;
+  -webkit-overflow-scrolling: scroll;
 }
-
+.sidebarContentBlock::-webkit-scrollbar {
+  display: none;             
+}
 .sidebarContentBlock li {
   list-style-type: none;
   margin-bottom: 20px;
@@ -94,6 +103,18 @@
   -moz-appearance: none;
 
  
+}
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 .imageBox {
   display: flex;

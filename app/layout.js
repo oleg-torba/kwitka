@@ -9,12 +9,10 @@ const roboto = Roboto({
 });
 
 export default function RootLayout({ children }) {
-
   return (
     <html lang="uk">
       <body className={roboto.className}>
         <div className="container">
-        
           <main>{children}</main>
           <footer></footer>
         </div>
@@ -22,4 +20,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-

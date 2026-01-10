@@ -10,6 +10,7 @@ const CertificateTable = ({ data, onRowClick  }) => {
 
   return (
     <div className={styles.tableContainer}> 
+    
       <table className={styles.certificateTable}>
         <thead>
           <tr onClick={() => onRowClick(item)}

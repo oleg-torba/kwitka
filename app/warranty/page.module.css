@@ -1,41 +1,51 @@
-
- .addBtn {
+.addBtn {
+  padding: 5px 10px;
+  font-size: 12px;
   cursor: pointer;
-  padding: 10px 20px;
-  background-color: #1976D2;
+  background-color: #1976d2;
   color: white;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid white;
-  font-size: 14px;
   text-align: center;
   margin-bottom: 15px;
   &:hover {
-    background-color: #1565C0;
+    background-color: #1565c0;
   }
- }
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+  @media screen and (max-width: 1024px) {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}
 
+.mainContainer {
+  min-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 .certificateTable {
   border-collapse: collapse;
-min-width: 700px;
-width: 100%;
   font-size: 13px;
-   
+
   text-align: center;
 }
-  .certificateTable {
- @media screen and(max-width:767px) {
-
-  width:340px;
-}}
-
-
 
 .certificateTable thead th {
   background-color: #f0f0f0;
-  padding: 8px;
   text-align: center;
-
+  padding: 4px;
+  @media screen and (min-width: 768px) {
+      padding: 6px;
+  }
+   @media screen and (min-width: 1024px) {
+      padding: 8px;
+  }
 }
 
 .certificateTable tbody td {
@@ -45,18 +55,23 @@ width: 100%;
   text-align: center;
 }
 
-
 .certificateTable tbody tr:hover {
   background-color: #e0e0e0;
-  cursor: pointer; 
+  cursor: pointer;
 }
-.mainContainer {
+.tableContainer {
   display: flex;
   justify-content: center;
   height: 100vh;
-   overflow-y: scroll;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: scroll;
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    width: 700px;
+  }
 
+  @media screen and (min-width: 1024px) {
+    width: 1200px;
+  }
 }
 .modalOverlay {
   position: fixed;
@@ -78,8 +93,9 @@ width: 100%;
   cursor: pointer;
 }
 @media screen and (max-width: 767px) {
- top: 5%;
- right: 100%;
+  .closeBtn {
+    right: 15%;
+  }
 }
 .roleBtn {
   cursor: pointer;
