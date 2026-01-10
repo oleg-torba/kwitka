@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CertificateTable from "../components/table/certificateTable";
-import Sidebar from "../components/Sidebar/Sidebar";
+import Sidebar from "../components/Sidebar/sidebar";
 import CertificateForm from "../components/form/masterForm";
 import Loader from "../components/loader/loader";
 
