@@ -1,11 +1,10 @@
-"use client"; 
 import { FaUserClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import styles from "./sidebar.module.css";
 import CertificateForm from "../form/masterForm";
 import { useState } from "react";
 const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
-    const [showEditForm, setShowEditForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   if (!isOpen) return null;
   const formatDate = (isoDate) => {
@@ -13,7 +12,7 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
 
     return date.toLocaleDateString("uk-UA");
   };
-  
+
   return (
     <div className={styles.sidebar}>
       <h2>Заявка № {item.repairNumber} на гарантію</h2>
@@ -84,57 +83,57 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
           <p>Майстер </p>
           <span>{item.master}</span>
         </li>
-         <li>
+        <li>
           <p>Коментар майстра </p>
           <span>{item.masterComment}</span>
         </li>
       </ul>
       <div className={styles.sidebarBlock}>
         Рішення майстра: {item.warrantyVerdict || "не вказано"}
-    
-       <div className={styles.imageBox}>
-  {item.masterImages && item.masterImages.length > 0 ? (
-    item.masterImages.map((img, idx) => (
-      <a
-        key={idx}
-        href={img.url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-       Майстра фото
-      </a>
-    ))
-  ) : (
-    <p>Фото майстра відсутнє</p>
-  )}
-  {item?.imageUrl && (
-<a href={item.imageUrl} target="_blank" rel="noopener noreferrer">Менеджера фото</a>
-)}
-</div>
-
+        <div className={styles.imageBox}>
+          {item.masterImages && item.masterImages.length > 0 ? (
+            item.masterImages.map((img, idx) => (
+              <a
+                key={idx}
+                href={img.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Майстра фото
+              </a>
+            ))
+          ) : (
+            <p>Фото майстра відсутнє</p>
+          )}
+          {item?.imageUrl && (
+            <a href={item.imageUrl} target="_blank" rel="noopener noreferrer">
+              Менеджера фото
+            </a>
+          )}
+        </div>
       </div>
-{showEditForm && (
-  <div className={styles.modalOverlay}>
-    <div className={styles.modalContent}>
-      <button
-        className={styles.closeBtn}
-        onClick={() => setShowEditForm(false)}
-      >
-        ✖
-      </button>
+      {showEditForm && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <button
+              className={styles.closeBtn}
+              onClick={() => setShowEditForm(false)}
+            >
+              ✖
+            </button>
 
-      <CertificateForm
-        role="manager"
-        mode="edit"
-        initialData={item}         
-        onSubmit={(updatedData) => {
-          onUpdate(updatedData); 
-          setShowEditForm(false);
-        }}
-      />
-    </div>
-  </div>
-)}
+            <CertificateForm
+              role="manager"
+              mode="edit"
+              initialData={item}
+              onSubmit={(updatedData) => {
+                onUpdate(updatedData);
+                setShowEditForm(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div>
         <a
@@ -145,8 +144,9 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
         >
           PDF
         </a>
-        <button     onClick={() => setShowEditForm(true)}
- className={styles.Btn}>Редагувати</button>
+        <button onClick={() => setShowEditForm(true)} className={styles.Btn}>
+          Редагувати
+        </button>
         <select
           className={styles.selectBtn}
           name="rezolution"
@@ -158,7 +158,12 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
           <option value="ok">Погоджено</option>{" "}
           <option value="rejected">Відхилено</option>{" "}
         </select>{" "}
-        <button className={styles.archiveBtn} onClick={() => onDelete(item._id)}>Архівувати</button>
+        <button
+          className={styles.archiveBtn}
+          onClick={() => onDelete(item._id)}
+        >
+          Архівувати
+        </button>
       </div>
     </div>
   );
