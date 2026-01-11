@@ -1,3 +1,4 @@
+"use client";
 import { FaUserClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import styles from "./sidebar.module.css";
@@ -151,7 +152,7 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
           className={styles.selectBtn}
           name="rezolution"
           value={item.rezolution || ""}
-          onChange={(e) => onResolutionChange(item._id, e.target.value)}
+          
         >
           {" "}
           <option value="">На погодженні</option>{" "}
