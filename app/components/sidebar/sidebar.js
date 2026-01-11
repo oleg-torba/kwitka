@@ -1,7 +1,7 @@
 "use client";
 import { FaUserClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
-import styles from "./sidebar.module.css";
+import styles from "./Sidebar.module.css";
 import CertificateForm from "../form/masterForm";
 import { useState } from "react";
 const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete }) => {
