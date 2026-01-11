@@ -1,36 +1,35 @@
 .formBlock {
   text-align: center;
-  width: 70%;
-  height: 100vh;
-     overflow-y: scroll;
-  -webkit-overflow-scrolling: scroll;
-   scrollbar-width: none;    
-  -ms-overflow-style: none; 
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-
+  width: 100%;
+  font-size: 12px;
 }
-.formBlock::-webkit-scrollbar {
-  display: none;             
+.formBlock h2 {
+  margin-bottom: 15px;
 }
 .form {
   display: flex;
- flex-wrap: wrap;
+  flex-wrap: wrap;
   gap: 20px;
-  
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 .formInput {
-  margin-top: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+
  
 }
 .formInput select {
-  width: 100px;
+  width: 120px;
   cursor: pointer;
-  padding: 10px;
+  padding: 5px;
   color: black;
   background-color: #e0e0e0;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: 5px;
   border: 0.5px solid black;
   border-radius: 6px;
@@ -38,14 +37,11 @@
   &:hover {
     background-color: e0e0e20;
   }
-  appearance: none;          
-  -webkit-appearance: none;
-  -moz-appearance: none;
+}
 
-  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+.formInput label {
+margin-bottom: 5px;
+font-weight: 600;
 }
 
 .formLabelTextarea {
@@ -58,9 +54,9 @@
   resize: vertical;
 }
 .formLabel{
-  height: 40px;
-  min-width: 100%;
-  padding: 10px;
+  height: 25px;
+  min-width: 50%;
+  padding: 5px;
  border: none;
       border:solid 1px grey;
       border-radius: 6px;
@@ -71,20 +67,10 @@
 
 }
 
-.previewGrid {
-  display: flex;
- flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 15px;
-}
-.previewGrid img{
-  width: 100px;
-  height: 100px;
-}
 .customButton {
  cursor: pointer;
-  padding: 10px;
-  width: 100%;
+  padding: 5px;
+  width: 120px;
   color: black;
   background-color: #e0e0e0;
   font-weight: 600;
@@ -97,14 +83,13 @@
 }
 .submitBtn {
 cursor: pointer;
-  padding: 10px;
+  padding: 5px;
   color: black;
-  background-color: #e0e0e0;
+  background-color: lightsteelblue;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid black;
   text-align: center;
-  margin-top: 25px;
   &:hover {
     background-color: lightskyblue;
   }

@@ -31,7 +31,7 @@
 }
 .certificateTable {
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 10px;
 
   text-align: center;
 }
@@ -60,9 +60,10 @@
   cursor: pointer;
 }
 .tableContainer {
+  width: 100%;
   display: flex;
   justify-content: center;
-  height: 100vh;
+  height: 90vh;
   overflow-y: scroll;
   -webkit-overflow-scrolling: scroll;
   @media screen and (min-width: 768px) and (max-width: 1023px) {
@@ -87,16 +88,13 @@
 }
 .closeBtn {
   position: absolute;
-  top: 10%;
-  right: 10%;
+  top: 5%;
+  right: 5%;
   font-size: 16px;
   cursor: pointer;
 }
-@media screen and (max-width: 767px) {
-  .closeBtn {
-    right: 15%;
-  }
-}
+
+
 .roleBtn {
   cursor: pointer;
   padding: 10px 20px;

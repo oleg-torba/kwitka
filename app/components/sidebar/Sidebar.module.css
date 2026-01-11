@@ -3,20 +3,12 @@
   padding: 20px;
 }
 
-.closeBtn {
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  font-size: 16px;
-  cursor: pointer;
-}
-
 .sidebar button {
   cursor: pointer;
   padding: 5px;
   margin-right: 5px;
-  background-color: white;
   font-weight: 600;
+  color: black;
   border-radius: 5px;
   border: 1px solid grey;
   font-size: 14px;
@@ -29,7 +21,6 @@
   display: inline-block;
   padding: 5px;
   margin-right: 5px;
-  background-color: white;
   font-weight: 600;
   color: black;
   text-decoration: none;
@@ -52,23 +43,21 @@
 }
 .sidebarContentBlock {
   box-shadow: -6px 0 12px rgba(16, 24, 40, 0.08);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  transition: box-shadow 0.5s ease, transform 0.15s ease;
   margin-top: 20px;
   background-color: #fff;
   padding: 20px 10px;
-  font-size: 18px;
+  font-size: 16px;
   border-radius: 5px;
-  height: 150px;
+  height: 100%;
   margin-bottom: 20px;
   overflow-y: scroll;
   -webkit-overflow-scrolling: scroll;
 }
-.sidebarContentBlock::-webkit-scrollbar {
-  display: none;
-}
+
 .sidebarContentBlock li {
   list-style-type: none;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border-bottom: 1px solid grey;
 
   &:last-child {
@@ -86,7 +75,7 @@
   cursor: pointer;
   padding: 5px;
   margin-right: 5px;
-  background-color: white;
+  color: black;
   font-weight: 600;
   border-radius: 5px;
   border: 1px solid grey;
@@ -99,8 +88,9 @@
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
 .modalOverlay {
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
@@ -111,11 +101,13 @@
   align-items: center;
   z-index: 1000;
 }
-.imageBox {
-  display: flex;
-  flex-direction: column;
-}
 
-.imageBox a {
-  margin-top: 10px;
+.modalContent {
+  position: relative;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
 }

@@ -21,7 +21,9 @@ export default function CertificateForm({
   const [warrantyVerdict, setWarrantyVerdict] = useState(
     initialData?.warrantyVerdict || ""
   );
-  const [masterComment, setMasterComment] = useState(initialData?.masterComment || "");
+  const [masterComment, setMasterComment] = useState(
+    initialData?.masterComment || ""
+  );
   const [saleDate, setSaleDate] = useState(
     initialData?.saleDate
       ? new Date(initialData.saleDate).toISOString().split("T")[0]
@@ -76,19 +78,18 @@ export default function CertificateForm({
 
     if (role === "manager") {
       if (
-  !certificateNumber ||
-  !manager ||
-  !brand ||
-  !(managerFile || initialData?.imageUrl) ||
-  !saleDate ||
-  !reporting
-) {
-  toast.error(
-    "Заповніть усі обов'язкові поля менеджера та завантажте фото"
-  );
-  return;
-}
-
+        !certificateNumber ||
+        !manager ||
+        !brand ||
+        !(managerFile || initialData?.imageUrl) ||
+        !saleDate ||
+        !reporting
+      ) {
+        toast.error(
+          "Заповніть усі обов'язкові поля менеджера та завантажте фото"
+        );
+        return;
+      }
     }
 
     setUploading(true);
@@ -153,7 +154,7 @@ export default function CertificateForm({
         manager: manager || "",
         imageUrl: uploadedManagerUrl || initialData?.imageUrl || null,
         saleDate: saleDate ? new Date(saleDate) : null,
-         masterComment: masterComment || "",
+        masterComment: masterComment || "",
         fixationDate:
           rezolution === "ok" || rezolution === "rejected"
             ? new Date().toISOString()
@@ -165,7 +166,7 @@ export default function CertificateForm({
       }
 
       onSubmit(payload);
-      console.log(payload)
+      console.log(payload);
       toast.success("Дані успішно збережено");
     } catch (err) {
       console.error(err);
@@ -185,39 +186,41 @@ export default function CertificateForm({
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formInput}>
-          <label>
-          <input
-            placeholder="Номер ремонту"
-            className={styles.formLabel}
-            value={repairNumber}
-            onChange={(e) => setRepairNumber(e.target.value)}
-          />
-          </label>
+          <label>   № ремонту </label>
+         
+            <input
+            
+              className={styles.formLabel}
+              value={repairNumber}
+              onChange={(e) => setRepairNumber(e.target.value)}
+            />
+         
         </div>
 
         <div className={styles.formInput}>
-          <label>
-          <input
-            placeholder="Майстер"
-            className={styles.formLabel}
-            value={master}
-            onChange={(e) => setMaster(e.target.value)}
-          />
-          </label>
+          <label>   Майстер </label>
+           
+            <input
+              className={styles.formLabel}
+              value={master}
+              onChange={(e) => setMaster(e.target.value)}
+            />
+       
         </div>
         {role === "master" && (
           <>
             <div className={styles.formInput}>
-              <label>
-              <input
-               placeholder="Файл (зображення)"
-                type="file"
-                multiple
-                accept="image/*"
-                id="masterFileInput"
-                hidden
-                onChange={handleMasterFilesChange}
-              /></label>
+              <label>   </label>
+                <input
+                  placeholder="Файл (зображення)"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  id="masterFileInput"
+                  hidden
+                  onChange={handleMasterFilesChange}
+                />
+           
               <button
                 type="button"
                 className={styles.customButton}
@@ -227,50 +230,45 @@ export default function CertificateForm({
               >
                 Додати фото
               </button>
-              <div className={styles.previewGrid}>
-                {masterPreviews.map((src, i) => (
-                  <div key={i} className={styles.previewBox}>
-                    <img src={src} alt="" style={{ objectFit: "cover" }} />
-                  </div>
-                ))}
-              </div>
+              
             </div>
 
             <div className={styles.formInput}>
-              <label>
-              <select
-                className={styles.formLabel}
-                value={warrantyVerdict}
-                onChange={(e) => setWarrantyVerdict(e.target.value)}
-              >
-                <option value="">Заключення</option>
-                <option value="Гарантія">Гарантія</option>
-                <option value="Не гарантія">Не гарантія</option>
-              </select>
-              </label>
+              <label>  </label>
+                <select
+                  className={styles.formLabel}
+                  value={warrantyVerdict}
+                  onChange={(e) => setWarrantyVerdict(e.target.value)}
+                >
+                  <option value="">Заключення</option>
+                  <option value="Гарантія">Гарантія</option>
+                  <option value="Не гарантія">Не гарантія</option>
+                </select>
+            
             </div>
-             <div className={styles.formInput}>
-    <label>
-    <textarea
-      className={styles.formLabelTextarea}
-      value={masterComment}
-      onChange={(e) => setMasterComment(e.target.value)}
-      placeholder="Коментар"
-    />
-    </label>
-  </div>
+            <div className={styles.formInput}>
+              <label>   </label>
+                <textarea
+                  className={styles.formLabelTextarea}
+                  value={masterComment}
+                  onChange={(e) => setMasterComment(e.target.value)}
+                  placeholder="Коментар"
+                />
+           
+            </div>
           </>
         )}
 
         {role === "manager" && (
           <>
             <div className={styles.formInput}>
-              <label>№ гарантійного талону</label>
+              <label>№ гарантійного талону </label>
               <input
                 className={styles.formLabel}
                 value={certificateNumber}
                 onChange={(e) => setCertificateNumber(e.target.value)}
               />
+             
             </div>
 
             <div className={styles.formInput}>
@@ -323,32 +321,18 @@ export default function CertificateForm({
             </div>
 
             <div className={styles.formInput}>
-              <label>Фото</label>
-              <input
+            
+
+              <label htmlFor="managerFileInput" className={styles.customButton}>
+                Вибрати фото
+              </label>
+               <input
                 type="file"
                 accept="image/*"
                 id="managerFileInput"
                 hidden
                 onChange={handleManagerFileChange}
               />
-              <button
-                type="button"
-                className={styles.customButton}
-                onClick={() =>
-                  document.getElementById("managerFileInput").click()
-                }
-              >
-                Обрати фото
-              </button>
-              {managerPreview && (
-                <div className={styles.previewBox}>
-                  <img
-                    src={managerPreview}
-                    alt=""
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-              )}
             </div>
 
             <div className={styles.formInput}>
