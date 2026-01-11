@@ -11,37 +11,30 @@ export default function CertificateForm({
   initialData = null,
   onSubmit,
 }) {
-  const [repairNumber, setRepairNumber] = useState(
-    initialData?.repairNumber || ""
-  );
+  const [repairNumber, setRepairNumber] = useState(initialData?.repairNumber || "");
   const [uploading, setUploading] = useState(false);
 
   const [masterFiles, setMasterFiles] = useState([]);
-  const [masterPreviews, setMasterPreviews] = useState([]);
-  const [warrantyVerdict, setWarrantyVerdict] = useState(
-    initialData?.warrantyVerdict || ""
+  const [masterPreviews, setMasterPreviews] = useState(
+    initialData?.masterImages?.map((img) => img.url) || []
   );
-  const [masterComment, setMasterComment] = useState(
-    initialData?.masterComment || ""
-  );
+  
+  const [warrantyVerdict, setWarrantyVerdict] = useState(initialData?.warrantyVerdict || "");
+  const [masterComment, setMasterComment] = useState(initialData?.masterComment || "");
   const [saleDate, setSaleDate] = useState(
-    initialData?.saleDate
-      ? new Date(initialData.saleDate).toISOString().split("T")[0]
-      : ""
+    initialData?.saleDate ? new Date(initialData.saleDate).toISOString().split("T")[0] : ""
   );
-  const [certificateNumber, setCertificateNumber] = useState(
-    initialData?.certificateNumber || ""
-  );
+  const [certificateNumber, setCertificateNumber] = useState(initialData?.certificateNumber || "");
   const [part, setPart] = useState(initialData?.part || "");
   const [brand, setBrand] = useState(initialData?.brand || "");
   const [reporting, setReporting] = useState(initialData?.reporting || "");
   const [manager, setManager] = useState(initialData?.manager || "");
   const [rezolution, setRezolution] = useState(initialData?.rezolution || "");
-  const [managerFile, setManagerFile] = useState(null);
   const [master, setMaster] = useState(initialData?.master || "");
-  const [managerPreview, setManagerPreview] = useState(
-    initialData?.imageUrl || null
-  );
+
+  const [managerFile, setManagerFile] = useState(null);
+  const [managerPreview, setManagerPreview] = useState(initialData?.imageUrl || null);
+
   const handleMasterFilesChange = (e) => {
     const selected = Array.from(e.target.files);
     if (selected.some((f) => !f.type.startsWith("image/"))) {
@@ -49,7 +42,7 @@ export default function CertificateForm({
       return;
     }
     setMasterFiles(selected);
-    setMasterPreviews(selected.map((f) => URL.createObjectURL(f)));
+
   };
 
   const handleManagerFileChange = (e) => {
@@ -61,6 +54,7 @@ export default function CertificateForm({
     setManagerFile(file);
     setManagerPreview(file ? URL.createObjectURL(file) : null);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -70,24 +64,15 @@ export default function CertificateForm({
     }
 
     if (role === "master") {
-      if (!warrantyVerdict || masterFiles.length === 0) {
+      if (!warrantyVerdict || (masterFiles.length === 0 && !initialData?.masterImages?.length)) {
         toast.error("Майстер повинен додати фото і вердикт");
         return;
       }
     }
 
     if (role === "manager") {
-      if (
-        !certificateNumber ||
-        !manager ||
-        !brand ||
-        !(managerFile || initialData?.imageUrl) ||
-        !saleDate ||
-        !reporting
-      ) {
-        toast.error(
-          "Заповніть усі обов'язкові поля менеджера та завантажте фото"
-        );
+      if (!certificateNumber || !manager || !brand || !(managerFile || initialData?.imageUrl) || !saleDate || !reporting) {
+        toast.error("Заповніть усі обов'язкові поля менеджера та завантажте фото");
         return;
       }
     }
@@ -95,16 +80,15 @@ export default function CertificateForm({
     setUploading(true);
 
     try {
-      let uploadedMasterImages = [];
-      let uploadedManagerUrl = null;
-      if (role === "master") {
+      let uploadedMasterImages = initialData?.masterImages || [];
+      let uploadedManagerUrl = initialData?.imageUrl || null;
+
+      if (role === "master" && masterFiles.length > 0) {
+        const newImages = [];
         for (const file of masterFiles) {
           const formData = new FormData();
           formData.append("file", file);
-          formData.append(
-            "upload_preset",
-            process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-          );
+          formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
 
           const res = await fetch(
             `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -112,28 +96,27 @@ export default function CertificateForm({
           );
 
           const data = await res.json();
-          if (!data.secure_url) throw new Error("Помилка завантаження фото");
+          if (!data.secure_url) throw new Error("Помилка завантаження фото майстра");
 
-          uploadedMasterImages.push({
+          newImages.push({
             url: data.secure_url,
             public_id: data.public_id,
           });
         }
+        uploadedMasterImages = newImages;
       }
+
       if (role === "manager" && managerFile) {
         const formData = new FormData();
         formData.append("file", managerFile);
-        formData.append(
-          "upload_preset",
-          process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-        );
+        formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
 
         const res = await fetch(
           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
           { method: "POST", body: formData }
         );
         const data = await res.json();
-        if (!data.secure_url) throw new Error("Помилка завантаження фото");
+        if (!data.secure_url) throw new Error("Помилка завантаження фото менеджера");
 
         uploadedManagerUrl = data.secure_url;
       }
@@ -141,9 +124,9 @@ export default function CertificateForm({
       const payload = {
         _id: initialData?._id || null,
         createdBy: role,
-        createdAt: new Date().toISOString(),
+        createdAt: initialData?.createdAt || new Date().toISOString(),
         warrantyVerdict: warrantyVerdict || "",
-        masterImages: uploadedMasterImages || [],
+        masterImages: uploadedMasterImages, 
         rezolution: rezolution || null,
         master: master || "",
         repairNumber: repairNumber || "",
@@ -152,21 +135,13 @@ export default function CertificateForm({
         part: part || "",
         reporting: reporting || "",
         manager: manager || "",
-        imageUrl: uploadedManagerUrl || initialData?.imageUrl || null,
+        imageUrl: uploadedManagerUrl, 
         saleDate: saleDate ? new Date(saleDate) : null,
         masterComment: masterComment || "",
-        fixationDate:
-          rezolution === "ok" || rezolution === "rejected"
-            ? new Date().toISOString()
-            : null,
+        fixationDate: (rezolution === "ok" || rezolution === "rejected") ? new Date().toISOString() : initialData?.fixationDate || null,
       };
 
-      if (mode === "edit" && initialData?._id) {
-        payload._id = initialData._id;
-      }
-
       onSubmit(payload);
-      console.log(payload);
       toast.success("Дані успішно збережено");
     } catch (err) {
       console.error(err);
@@ -179,82 +154,68 @@ export default function CertificateForm({
   return (
     <div className={styles.formBlock}>
       <h2>
-        {role === "master"
-          ? "Оформлення сертифіката (Майстер)"
-          : "Оформлення сертифіката (Менеджер)"}
+        {role === "master" ? "Оформлення сертифіката (Майстер)" : "Оформлення сертифіката (Менеджер)"}
       </h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formInput}>
-          <label>   № ремонту </label>
-         
-            <input
-            
-              className={styles.formLabel}
-              value={repairNumber}
-              onChange={(e) => setRepairNumber(e.target.value)}
-            />
-         
+          <label>№ ремонту</label>
+          <input
+            className={styles.formLabel}
+            value={repairNumber}
+            onChange={(e) => setRepairNumber(e.target.value)}
+          />
         </div>
 
         <div className={styles.formInput}>
-          <label>   Майстер </label>
-           
-            <input
-              className={styles.formLabel}
-              value={master}
-              onChange={(e) => setMaster(e.target.value)}
-            />
-       
+          <label>Майстер</label>
+          <input
+            className={styles.formLabel}
+            value={master}
+            onChange={(e) => setMaster(e.target.value)}
+          />
         </div>
+
         {role === "master" && (
           <>
             <div className={styles.formInput}>
-              <label>   </label>
-                <input
-                  placeholder="Файл (зображення)"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  id="masterFileInput"
-                  hidden
-                  onChange={handleMasterFilesChange}
-                />
-           
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                id="masterFileInput"
+                hidden
+                onChange={handleMasterFilesChange}
+              />
               <button
                 type="button"
                 className={styles.customButton}
-                onClick={() =>
-                  document.getElementById("masterFileInput").click()
-                }
+                onClick={() => document.getElementById("masterFileInput").click()}
               >
-                Додати фото
+                {masterFiles.length > 0 ? `Вибрано фото: ${masterFiles.length}` : "Додати фото майстра"}
               </button>
               
             </div>
 
             <div className={styles.formInput}>
-              <label>  </label>
-                <select
-                  className={styles.formLabel}
-                  value={warrantyVerdict}
-                  onChange={(e) => setWarrantyVerdict(e.target.value)}
-                >
-                  <option value="">Заключення</option>
-                  <option value="Гарантія">Гарантія</option>
-                  <option value="Не гарантія">Не гарантія</option>
-                </select>
-            
+              <select
+                className={styles.formLabel}
+                value={warrantyVerdict}
+                onChange={(e) => setWarrantyVerdict(e.target.value)}
+              >
+                <option value="">Заключення</option>
+                <option value="Гарантія">Гарантія</option>
+                <option value="Не гарантія">Не гарантія</option>
+              </select>
             </div>
+            
             <div className={styles.formInput}>
-              <label>   </label>
-                <textarea
-                  className={styles.formLabelTextarea}
-                  value={masterComment}
-                  onChange={(e) => setMasterComment(e.target.value)}
-                  placeholder="Коментар"
-                />
-           
+              <textarea
+                className={styles.formLabelTextarea}
+                value={masterComment}
+                onChange={(e) => setMasterComment(e.target.value)}
+                placeholder="Коментар майстра"
+              />
             </div>
           </>
         )}
@@ -262,13 +223,12 @@ export default function CertificateForm({
         {role === "manager" && (
           <>
             <div className={styles.formInput}>
-              <label>№ гарантійного талону </label>
+              <label>№ гарантійного талону</label>
               <input
                 className={styles.formLabel}
                 value={certificateNumber}
                 onChange={(e) => setCertificateNumber(e.target.value)}
               />
-             
             </div>
 
             <div className={styles.formInput}>
@@ -293,6 +253,7 @@ export default function CertificateForm({
                 <option value="Oleo-Mac">Oleo-Mac</option>
               </select>
             </div>
+
             <div className={styles.formInput}>
               <label>Дата продажу</label>
               <input
@@ -300,9 +261,9 @@ export default function CertificateForm({
                 className={styles.formLabel}
                 value={saleDate}
                 onChange={(e) => setSaleDate(e.target.value)}
-                required
               />
             </div>
+
             <div className={styles.formInput}>
               <label>Менеджер</label>
               <input
@@ -311,6 +272,7 @@ export default function CertificateForm({
                 onChange={(e) => setManager(e.target.value)}
               />
             </div>
+
             <div className={styles.formInput}>
               <label>Дані клієнта</label>
               <input
@@ -321,18 +283,21 @@ export default function CertificateForm({
             </div>
 
             <div className={styles.formInput}>
-            
-
-              <label htmlFor="managerFileInput" className={styles.customButton}>
-                Вибрати фото
-              </label>
-               <input
+              <input
                 type="file"
                 accept="image/*"
                 id="managerFileInput"
                 hidden
                 onChange={handleManagerFileChange}
               />
+              <button
+                type="button"
+                className={styles.customButton}
+                onClick={() => document.getElementById("managerFileInput").click()}
+              >
+                {managerFile ? "Фото вибрано" : "Вибрати фото менеджера"}
+              </button>
+        
             </div>
 
             <div className={styles.formInput}>

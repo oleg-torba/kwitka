@@ -13,7 +13,7 @@ const CertificateTable = ({ data, onRowClick  }) => {
     
       <table className={styles.certificateTable}>
         <thead>
-          <tr onClick={() => onRowClick(item)}
+          <tr  onClick={() => onRowClick(item)}
 >
             <th>#</th>
             <th>№</th>
@@ -26,8 +26,7 @@ const CertificateTable = ({ data, onRowClick  }) => {
 
         <tbody>
           {data.map((item) => (
-            <tr onClick={() => onRowClick(item)}
- key={item._id}>
+            <tr  onClick={() => onRowClick(item)} key={item._id}>
               <td>
                 <input type="checkbox" />
               </td>

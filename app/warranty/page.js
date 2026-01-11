@@ -32,6 +32,7 @@ const WarrantyPage = () => {
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
           )
         );
+        console.log("Certificates fetched:", response.data.data);
       } catch (error) {
         console.error(error.message);
       } finally {

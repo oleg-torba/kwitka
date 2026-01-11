@@ -35,10 +35,10 @@
   color: darkred;
 }
 .sidebarContent {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   margin-left: 10px;
-  padding: 10px;
+  padding: 5px;
   text-align: center;
 }
 .sidebarContentBlock {

@@ -17,11 +17,12 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
       
       <div
         style={{
-          padding: "8px",
+          padding: "5px",
           display: "flex",
           alignItems: "center",
           borderRadius: "6px",
-          margin: "20px 0",
+          margin: "5px 0",
+          fontSize: "14px",
           backgroundColor:
             item.rezolution === "ok"
               ? "rgba(76, 175, 80, 0.08)"
@@ -47,7 +48,7 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
         <li><p>Менеджер</p><span>{item.manager}</span></li>
         <li><p>Майстер</p><span>{item.master}</span></li>
         <li><p>Коментар майстра</p><span>{item.masterComment}</span></li>
-        <li><span>Рішення майстра: {item.warrantyVerdict || "не вказано"}</span></li>
+        <li><p>Рішення майстра:</p> <span>{item.warrantyVerdict || "не вказано"}</span></li>
         <li>
           {item.masterImages && item.masterImages.length > 0 ? (
             item.masterImages.map((img, idx) => (
@@ -60,8 +61,6 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
 
       <div className={styles.actions}>
         <a className={styles.pdfBtn} href={item.imageUrl} target="_blank" rel="noopener noreferrer">PDF</a>
-        
-        {/* Кнопка тепер просто викликає функцію з батьківського компонента */}
         <button onClick={onEdit} className={styles.Btn}>Редагувати</button>
 
         <select

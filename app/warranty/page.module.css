@@ -88,8 +88,8 @@
 }
 .closeBtn {
   position: absolute;
-  top: 5%;
-  right: 5%;
+  top: 0;
+  right: 0;
   font-size: 16px;
   cursor: pointer;
 }
