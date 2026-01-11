@@ -24,7 +24,7 @@ const WarrantyPage = () => {
 
       try {
         const response = await axios.get(
-          "https://kwitka.onrender.com/api/warranty"
+          "https://node-kwitka.onrender.com/api/warranty"
         );
         setCertificates(response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         setLoading(false);
@@ -60,7 +60,7 @@ const WarrantyPage = () => {
 
     try {
       setLoading(true);
-      await axios.delete(`https://kwitka.onrender.com/api/warranty/${id}`);
+      await axios.delete(`https://node-kwitka.onrender.com/api/warranty/${id}`);
 
       setCertificates((prev) => prev.filter((cert) => cert._id !== id));
 
@@ -86,7 +86,7 @@ const WarrantyPage = () => {
       if (data._id) {
     
         response = await axios.put(
-          `https://kwitka.onrender.com/api/warranty/edit/${data._id}`,
+          `https://node-kwitka.onrender.com/api/warranty/edit/${data._id}`,
           data
         );
 
@@ -96,7 +96,7 @@ const WarrantyPage = () => {
       } else {
       
         response = await axios.post(
-          "https://kwitka.onrender.com/api/warranty/addWarranty",
+          "https://node-kwitka.onrender.com/api/warranty/addWarranty",
           data
         );
 
