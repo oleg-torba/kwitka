@@ -322,6 +322,7 @@ export default function CertificateForm({
             </div>
 
             <div className={styles.formInput}>
+              <label>Додати фото</label>
               <input
                 type="file"
                 accept="image/*"
@@ -338,7 +339,7 @@ export default function CertificateForm({
               >
              {managerFile !== null
                   ? `Фото вибрано`
-                  : "Фото"}
+                  : "Обрати"}
               </button>
             </div>
 
@@ -357,8 +358,7 @@ export default function CertificateForm({
             </div>
           </>
         )}
-
-        <button type="submit" disabled={uploading} className={styles.submitBtn}>
+         <button type="submit" disabled={uploading} className={styles.submitBtn}>
           {uploading ? "Збереження..." : "Зберегти"}
         </button>
       </form>

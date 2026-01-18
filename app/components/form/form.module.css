@@ -1,7 +1,12 @@
 .formBlock {
-  text-align: center;
+display: flex;
+justify-content: center;
+flex-direction: column;
+align-items: center;
   width: 100%;
-  font-size: 12px;
+  font-size: 18px;
+  height: 70vh;
+
 }
 .formBlock h2 {
   margin-bottom: 15px;
@@ -9,39 +14,41 @@
 .form {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 30px;
+  height: 100%;
+  width: 70%;
   background-color: #fff;
-  justify-content: center;
   align-items: center;
   padding: 20px;
+  border-radius: 8px;
 }
 .formInput {
 display: flex;
 justify-content: center;
 align-items: center;
 flex-direction: column;
-
  
 }
 .formInput select {
-  width: 120px;
+  width: 250px;
   cursor: pointer;
   padding: 5px;
   color: black;
-  background-color: #e0e0e0;
-  font-weight: 500;
+  background-color: lightblue;
+  font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid black;
   border-radius: 6px;
   text-align: center;
   &:hover {
-    background-color: e0e0e20;
+    background-color: lightskyblue;
   }
 }
 
 .formInput label {
 margin-bottom: 5px;
 font-weight: 600;
+width: 250px;
 }
 
 .formLabelTextarea {
@@ -55,8 +62,9 @@ font-weight: 600;
 }
 .formLabel{
   height: 25px;
-  min-width: 50%;
+  min-width: 250px;
   padding: 5px;
+  font-weight: 600;
  border: none;
       border:solid 1px grey;
       border-radius: 6px;
@@ -70,9 +78,9 @@ font-weight: 600;
 .customButton {
  cursor: pointer;
   padding: 5px;
-  width: 120px;
+  width: 250px;
   color: black;
-  background-color: #e0e0e0;
+  background-color: lightblue;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid black;
@@ -83,13 +91,14 @@ font-weight: 600;
 }
 .submitBtn {
 cursor: pointer;
-  padding: 5px;
+  padding: 10px;
   color: black;
-  background-color: lightsteelblue;
+  background-color: lightblue;
   font-weight: 600;
   border-radius: 5px;
   border: 0.5px solid black;
   text-align: center;
+  margin-left: auto;
   &:hover {
     background-color: lightskyblue;
   }
