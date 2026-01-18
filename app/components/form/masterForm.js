@@ -11,29 +11,35 @@ export default function CertificateForm({
   initialData = null,
   onSubmit,
 }) {
-  const [repairNumber, setRepairNumber] = useState(initialData?.repairNumber || "");
+  const [repairNumber, setRepairNumber] = useState(
+    initialData?.repairNumber || ""
+  );
   const [uploading, setUploading] = useState(false);
 
   const [masterFiles, setMasterFiles] = useState([]);
-  const [masterPreviews, setMasterPreviews] = useState(
-    initialData?.masterImages?.map((img) => img.url) || []
+
+  const [warrantyVerdict, setWarrantyVerdict] = useState(
+    initialData?.warrantyVerdict || ""
   );
-  
-  const [warrantyVerdict, setWarrantyVerdict] = useState(initialData?.warrantyVerdict || "");
-  const [masterComment, setMasterComment] = useState(initialData?.masterComment || "");
+  const [masterComment, setMasterComment] = useState(
+    initialData?.masterComment || ""
+  );
   const [saleDate, setSaleDate] = useState(
-    initialData?.saleDate ? new Date(initialData.saleDate).toISOString().split("T")[0] : ""
+    initialData?.saleDate
+      ? new Date(initialData.saleDate).toISOString().split("T")[0]
+      : ""
   );
-  const [certificateNumber, setCertificateNumber] = useState(initialData?.certificateNumber || "");
+  const [certificateNumber, setCertificateNumber] = useState(
+    initialData?.certificateNumber || ""
+  );
   const [part, setPart] = useState(initialData?.part || "");
   const [brand, setBrand] = useState(initialData?.brand || "");
   const [reporting, setReporting] = useState(initialData?.reporting || "");
   const [manager, setManager] = useState(initialData?.manager || "");
-  const [rezolution, setRezolution] = useState(initialData?.rezolution || "");
+  const [rezolution, setRezolution] = useState(initialData?.rezolution || "default");
   const [master, setMaster] = useState(initialData?.master || "");
 
   const [managerFile, setManagerFile] = useState(null);
-  const [managerPreview, setManagerPreview] = useState(initialData?.imageUrl || null);
 
   const handleMasterFilesChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -42,7 +48,6 @@ export default function CertificateForm({
       return;
     }
     setMasterFiles(selected);
-
   };
 
   const handleManagerFileChange = (e) => {
@@ -52,7 +57,6 @@ export default function CertificateForm({
       return;
     }
     setManagerFile(file);
-    setManagerPreview(file ? URL.createObjectURL(file) : null);
   };
 
   const handleSubmit = async (e) => {
@@ -64,15 +68,28 @@ export default function CertificateForm({
     }
 
     if (role === "master") {
-      if (!warrantyVerdict || (masterFiles.length === 0 && !initialData?.masterImages?.length)) {
+      if (
+        !warrantyVerdict ||
+        (masterFiles.length === 0 && !initialData?.masterImages?.length)
+      ) {
         toast.error("Майстер повинен додати фото і вердикт");
         return;
       }
     }
 
     if (role === "manager") {
-      if (!certificateNumber || !manager || !brand || !(managerFile || initialData?.imageUrl) || !saleDate || !reporting) {
-        toast.error("Заповніть усі обов'язкові поля менеджера та завантажте фото");
+      if (
+        rezolution === "default" ||
+        !certificateNumber ||
+        !manager ||
+        !brand ||
+        !(managerFile || initialData?.imageUrl) ||
+        !saleDate ||
+        !reporting
+      ) {
+        toast.error(
+          "Заповніть усі обов'язкові поля менеджера та завантажте фото"
+        );
         return;
       }
     }
@@ -88,7 +105,10 @@ export default function CertificateForm({
         for (const file of masterFiles) {
           const formData = new FormData();
           formData.append("file", file);
-          formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+          formData.append(
+            "upload_preset",
+            process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+          );
 
           const res = await fetch(
             `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -96,7 +116,8 @@ export default function CertificateForm({
           );
 
           const data = await res.json();
-          if (!data.secure_url) throw new Error("Помилка завантаження фото майстра");
+          if (!data.secure_url)
+            throw new Error("Помилка завантаження фото");
 
           newImages.push({
             url: data.secure_url,
@@ -109,14 +130,18 @@ export default function CertificateForm({
       if (role === "manager" && managerFile) {
         const formData = new FormData();
         formData.append("file", managerFile);
-        formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+        formData.append(
+          "upload_preset",
+          process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+        );
 
         const res = await fetch(
           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
           { method: "POST", body: formData }
         );
         const data = await res.json();
-        if (!data.secure_url) throw new Error("Помилка завантаження фото менеджера");
+        if (!data.secure_url)
+          throw new Error("Помилка завантаження фото");
 
         uploadedManagerUrl = data.secure_url;
       }
@@ -125,9 +150,9 @@ export default function CertificateForm({
         _id: initialData?._id || null,
         createdBy: role,
         createdAt: initialData?.createdAt || new Date().toISOString(),
-        warrantyVerdict: warrantyVerdict || "",
-        masterImages: uploadedMasterImages, 
-        rezolution: rezolution || null,
+        warrantyVerdict: warrantyVerdict || "Гарантія",
+        masterImages: uploadedMasterImages,
+        rezolution: rezolution || "default",
         master: master || "",
         repairNumber: repairNumber || "",
         certificateNumber: certificateNumber || "",
@@ -135,17 +160,19 @@ export default function CertificateForm({
         part: part || "",
         reporting: reporting || "",
         manager: manager || "",
-        imageUrl: uploadedManagerUrl, 
+        imageUrl: uploadedManagerUrl,
         saleDate: saleDate ? new Date(saleDate) : null,
         masterComment: masterComment || "",
-        fixationDate: (rezolution === "ok" || rezolution === "rejected") ? new Date().toISOString() : initialData?.fixationDate || null,
+        fixationDate:
+          rezolution === "ok" || rezolution === "rejected"
+            ? new Date().toISOString()
+            : initialData?.fixationDate || null,
       };
-
       onSubmit(payload);
       toast.success("Дані успішно збережено");
     } catch (err) {
       console.error(err);
-      toast.error(err.message || "Помилка збереження");
+      toast.error(err.message || `Помилка збереження, ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -154,7 +181,9 @@ export default function CertificateForm({
   return (
     <div className={styles.formBlock}>
       <h2>
-        {role === "master" ? "Оформлення сертифіката (Майстер)" : "Оформлення сертифіката (Менеджер)"}
+        {role === "master"
+          ? "Оформлення сертифіката (Майстер)"
+          : "Оформлення сертифіката (Менеджер)"}
       </h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -190,11 +219,14 @@ export default function CertificateForm({
               <button
                 type="button"
                 className={styles.customButton}
-                onClick={() => document.getElementById("masterFileInput").click()}
+                onClick={() =>
+                  document.getElementById("masterFileInput").click()
+                }
               >
-                {masterFiles.length > 0 ? `Вибрано фото: ${masterFiles.length}` : "Додати фото майстра"}
+                {masterFiles.length > 0
+                  ? `Фото: ${masterFiles.length} шт`
+                  : "Фото"}
               </button>
-              
             </div>
 
             <div className={styles.formInput}>
@@ -208,7 +240,7 @@ export default function CertificateForm({
                 <option value="Не гарантія">Не гарантія</option>
               </select>
             </div>
-            
+
             <div className={styles.formInput}>
               <textarea
                 className={styles.formLabelTextarea}
@@ -266,11 +298,18 @@ export default function CertificateForm({
 
             <div className={styles.formInput}>
               <label>Менеджер</label>
-              <input
-                className={styles.formLabel}
-                value={manager}
-                onChange={(e) => setManager(e.target.value)}
-              />
+              <select   
+               className={styles.formLabel}
+               value = {manager}
+              onChange={(e) => setManager(e.target.value)}>
+                 <option value = "">Не вказано</option>
+             <option value = "Віталік">Віталік</option>
+               <option vlaue = "Роман">Роман</option>
+                 <option value = "Олег">Олег</option>
+                   <option value = "Валентина">Валентина</option>
+                     <option value = "Андрій Д.">Андрій Д.</option>
+                       <option value = "Андрій Н.">Андрій Н.</option>
+              </select>
             </div>
 
             <div className={styles.formInput}>
@@ -293,11 +332,14 @@ export default function CertificateForm({
               <button
                 type="button"
                 className={styles.customButton}
-                onClick={() => document.getElementById("managerFileInput").click()}
+                onClick={() =>
+                  document.getElementById("managerFileInput").click()
+                }
               >
-                {managerFile ? "Фото вибрано" : "Вибрати фото менеджера"}
+             {managerFile !== null
+                  ? `Фото вибрано`
+                  : "Фото"}
               </button>
-        
             </div>
 
             <div className={styles.formInput}>
@@ -307,7 +349,8 @@ export default function CertificateForm({
                 value={rezolution}
                 onChange={(e) => setRezolution(e.target.value)}
               >
-                <option value="">На погодженні</option>
+                 <option value="default">Не вказано</option>
+                <option value="waiting">На погодженні</option>
                 <option value="ok">Погоджено</option>
                 <option value="rejected">Відхилено</option>
               </select>

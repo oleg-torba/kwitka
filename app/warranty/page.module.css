@@ -1,5 +1,5 @@
 .addBtn {
-  padding: 5px 10px;
+  padding:5px 10px;
   font-size: 12px;
   cursor: pointer;
   background-color: #1976d2;
@@ -8,20 +8,21 @@
   border-radius: 5px;
   border: 0.5px solid white;
   text-align: center;
-  margin-bottom: 15px;
   &:hover {
     background-color: #1565c0;
   }
-  @media screen and (min-width: 768px) and (max-width: 1023px) {
+}
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .addBtn {
     font-size: 13px;
-    padding: 8px 16px;
-  }
-  @media screen and (max-width: 1024px) {
-    font-size: 14px;
-    padding: 10px 20px;
   }
 }
-
+@media screen and (min-width: 1024px) {
+  .addBtn {
+    font-size: 14px;
+    padding: 7px;
+  }
+}
 .mainContainer {
   min-width: 100%;
   display: flex;
@@ -32,7 +33,7 @@
 .certificateTable {
   border-collapse: collapse;
   font-size: 10px;
-
+  width: 100%;
   text-align: center;
 }
 
@@ -40,14 +41,24 @@
   background-color: #f0f0f0;
   text-align: center;
   padding: 4px;
-  @media screen and (min-width: 768px) {
-      padding: 6px;
-  }
-   @media screen and (min-width: 1024px) {
-      padding: 8px;
-  }
 }
 
+@media screen and (min-width: 768px) {
+  .certificateTable thead th {
+    padding: 6px;
+  }
+  .certificateTable {
+    font-size: 14px;
+  }
+}
+@media screen and (min-width: 1024px) {
+  .certificateTable thead th {
+    padding: 8px;
+  }
+  .certificateTable {
+    font-size: 16px;
+  }
+}
 .certificateTable tbody td {
   padding: 8px;
   border-bottom: 3px solid #e0e0e0;
@@ -63,17 +74,19 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  height: 90vh;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: scroll;
-  @media screen and (min-width: 768px) and (max-width: 1023px) {
+
+}
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .tableContainer {
     width: 700px;
   }
-
-  @media screen and (min-width: 1024px) {
+}
+@media screen and (min-width: 1024px) {
+  .tableContainer {
     width: 1200px;
   }
 }
+
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -93,19 +106,60 @@
   font-size: 16px;
   cursor: pointer;
 }
-
-
-.roleBtn {
+.searchInput {
+  padding: 5px 10px;
+  font-size: 12px;
   cursor: pointer;
-  padding: 10px 20px;
+    height: 100%;
+  background-color: transparent;
   color: black;
-  background-color: #e0e0e0;
   font-weight: 600;
   border-radius: 5px;
+  width: 150px;
+  outline: none;
   border: 0.5px solid black;
-  font-size: 14px;
-  text-align: center;
-  &:hover {
-    background-color: lightskyblue;
+  text-align: left;
+  margin-left: 30px;
+}
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .searchInput {
+    font-size: 13px;
   }
+}
+@media screen and (min-width: 1024px) {
+  .searchInput {
+    font-size: 14px;
+    padding: 7px;
+    width: 200px;
+  }
+}
+.roleBtn {
+  padding: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 0.5px solid white;
+  text-align: center;
+  margin-bottom: 15px;
+  &:hover {
+    background-color: #1565c0;
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .roleBtn {
+    font-size: 13px;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .roleBtn {
+    font-size: 14px;
+  }
+}
+.head {
+  display: flex;
+    margin-bottom: 15px;
+    align-items: center;
 }

@@ -30,12 +30,12 @@ const CertificateTable = ({ data, onRowClick  }) => {
               <td>
                 <input type="checkbox" />
               </td>
-              <td>{item.repairNumber}</td>
-              <td>{formatDate(item.createdAt)}</td>
-              <td>{item.brand}</td>
+              <td>{item.repairNumber || "Не вказано"} </td>
+              <td>{formatDate(item.createdAt)  || "Не вказано"}</td>
+              <td>{item.brand || "Не вказано"}</td>
               <td>
                 {item.part?.split("/").map((parts, index) => (
-                  <div key={index}>{parts}</div>
+                  <div key={index}>{parts || "Не вказано"}</div>
                 ))}
               </td>
               <td>
@@ -64,14 +64,16 @@ const CertificateTable = ({ data, onRowClick  }) => {
 >
   {item.rezolution === "ok" && <FaCheckCircle size={16} />}
   {item.rezolution === "rejected" && <FaTimesCircle size={16} />}
-  {!item.rezolution && <FaUserClock size={16} />}
+  {item.rezolution === "waiting" || item.rezolution === "default" && <FaUserClock size={16} />}
 
   <span>
     {item.rezolution === "ok"
       ? "Погоджено"
       : item.rezolution === "rejected"
       ? "Відхилено"
-      : "На погодженні"}
+      : item.rezolution === "waiting"
+      ? "На погодженні"
+      : "Не вказано"}
   </span>
 </div>
 

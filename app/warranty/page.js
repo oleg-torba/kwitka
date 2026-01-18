@@ -12,8 +12,9 @@ import CertificateForm from "../components/form/masterForm";
 import Loader from "../components/loader/loader";
 
 const WarrantyPage = () => {
+  const [search, setSearch] = useState("")
   const [selectedItem, setSelectedItem] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(false); // Керує показом деталей
+  const [showSidebar, setShowSidebar] = useState(false);
   const [certificates, setCertificates] = useState([]);
   const [showRoleSelect, setShowRoleSelect] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -25,14 +26,13 @@ const WarrantyPage = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          "https://node-kwitka.onrender.com/api/warranty"
+          "http://localhost:3001/api/warranty"
         );
         setCertificates(
           response.data.data.sort(
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
           )
         );
-        console.log("Certificates fetched:", response.data.data);
       } catch (error) {
         console.error(error.message);
       } finally {
@@ -46,12 +46,30 @@ const WarrantyPage = () => {
     setSelectedItem(null);
     setShowRoleSelect(true);
   };
-
   const handleRoleSelect = (role) => {
     setUserRole(role);
     setShowRoleSelect(false);
     setShowForm(true);
   };
+
+const filteredCertificates = certificates.filter((item) => {
+  const query = search.toLowerCase();
+
+  return (
+    item.repairNumber?.toLowerCase().includes(query) ||
+    item.manager?.toLowerCase().includes(query) ||
+    item.brand?.toLowerCase().includes(query) ||
+    item.certificateNumber?.toLowerCase().includes(query) ||
+    item.part?.toLowerCase().includes(query) ||
+    item.masterComment?.toLowerCase().includes(query) ||
+     item.master?.toLowerCase().includes(query) ||
+    item.reporting?.toLowerCase().includes(query) ||
+    (item.rezolution === "ok" && "погоджено".includes(query)) ||
+    (item.rezolution === "rejected" && "відхилено".includes(query)) ||
+    (item.rezolution === "" && "на погодженні".includes(query))
+  );
+});
+
 
   const handleDeleteCertificate = async (id) => {
     if (!id) return;
@@ -79,7 +97,7 @@ const WarrantyPage = () => {
       let response;
       if (data._id) {
         response = await axios.put(
-          `https://node-kwitka.onrender.com/api/warranty/edit/${data._id}`,
+          `http://localhost:3001/api/warranty/edit/${data._id}`,
           data
         );
         setCertificates((prev) =>
@@ -87,7 +105,7 @@ const WarrantyPage = () => {
         );
       } else {
         response = await axios.post(
-          "https://node-kwitka.onrender.com/api/warranty/addWarranty",
+          "http://localhost:3001/api/warranty/addWarranty",
           data
         );
         setCertificates((prev) => [response.data, ...prev]);
@@ -106,7 +124,6 @@ const WarrantyPage = () => {
       {loading && <Loader />}
       <ToastContainer />
 
-      {/* Модалка вибору ролі */}
       {showRoleSelect && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -140,12 +157,20 @@ const WarrantyPage = () => {
           </div>
         </div>
       )}
-
+   <div className={styles.head}>
+         <button className={styles.addBtn} onClick={handleAddClick}>Додати</button>
+        <input
+        className={styles.searchInput}
+        value={search}
+  onChange={(e) => setSearch(e.target.value)}
+        type="input"
+        placeholder="Пошук">
+        </input>
+       </div>
       <div className={styles.mainContainer}>
-        <button className={styles.addBtn} onClick={handleAddClick}>Додати</button>
-
+    
         <CertificateTable
-          data={certificates}
+          data={filteredCertificates}
           onRowClick={(item) => {
             setSelectedItem(item);
             setShowSidebar(true);
