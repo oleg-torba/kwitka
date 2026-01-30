@@ -52,10 +52,6 @@ export default function CertificateForm({
 
   const handleManagerFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && !file.type.startsWith("image/")) {
-      toast.error("Дозволено лише зображення");
-      return;
-    }
     setManagerFile(file);
   };
 
@@ -325,7 +321,7 @@ export default function CertificateForm({
               <label>Додати фото</label>
               <input
                 type="file"
-                accept="image/*"
+                accept=""
                 id="managerFileInput"
                 hidden
                 onChange={handleManagerFileChange}
