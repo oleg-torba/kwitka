@@ -153,6 +153,7 @@ const filteredCertificates = certificates.filter((item) => {
               mode={selectedItem ? "edit" : "create"}
               initialData={selectedItem}
               onSubmit={handleFormSubmit}
+              existingNumbers={certificates.map(c => c.repairNumber)}
             />
           </div>
         </div>

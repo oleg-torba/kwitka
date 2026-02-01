@@ -11,6 +11,8 @@ export default function CertificateForm({
   mode = "create",
   initialData = null,
   onSubmit,
+  existingNumbers,
+  
 }) {
   const [repairNumber, setRepairNumber] = useState(
     initialData?.repairNumber || ""
@@ -190,6 +192,18 @@ export default function CertificateForm({
             className={styles.formLabel}
             value={repairNumber}
             onChange={(e) => setRepairNumber(e.target.value)}
+            onBlur={() => {
+              console.log(existingNumbers)
+     
+        const isDuplicate = existingNumbers.some(
+          (c) => c === repairNumber
+        );
+        if (isDuplicate) {
+          toast.warning(`Увага! Ремонт №${repairNumber} вже є в системі`);
+        setRepairNumber("");
+        }
+      
+    }}
           />
         </div>
 
