@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./form.module.css";
+import Loader from "../loader/loader";
 
 export default function CertificateForm({
   role,
@@ -178,8 +179,8 @@ export default function CertificateForm({
     <div className={styles.formBlock}>
       <h2>
         {role === "master"
-          ? "Оформлення сертифіката (Майстер)"
-          : "Оформлення сертифіката (Менеджер)"}
+          ? "Створення(Майстер)"
+          : "Створення (Менеджер)"}
       </h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -334,7 +335,7 @@ export default function CertificateForm({
                 }
               >
              {managerFile !== null
-                  ? `Фото вибрано`
+                  ? `${managerFile.name}`
                   : "Обрати"}
               </button>
             </div>
@@ -355,11 +356,12 @@ export default function CertificateForm({
           </>
         )}
          <button type="submit" disabled={uploading} className={styles.submitBtn}>
-          {uploading ? "Збереження..." : "Зберегти"}
+        Зберегти
         </button>
       </form>
 
       <ToastContainer />
+      {uploading && <Loader/>}
     </div>
   );
 }
