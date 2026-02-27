@@ -343,7 +343,6 @@ export default function CertificateForm({
               <label>Додати фото</label>
               <input
                 type="file"
-                accept=""
                 id="managerFileInput"
                 hidden
                 onChange={handleManagerFileChange}
