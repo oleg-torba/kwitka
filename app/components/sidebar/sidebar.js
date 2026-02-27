@@ -126,14 +126,7 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
       </ul>
 
       <div className={styles.actions}>
-        <a
-          className={styles.pdfBtn}
-          href={item.imageUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Завантажити PDF
-        </a>
+      
         <button onClick={onEdit} className={styles.Btn}>
           Редагувати
         </button>
