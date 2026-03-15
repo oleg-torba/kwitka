@@ -219,7 +219,25 @@ export default function CertificateForm({
             <option value="Сергій">Сергій</option>
           </select>
         </div>
-
+ <div className={styles.formInput}>
+              <label>Бренд</label>
+              <select
+                className={styles.formLabel}
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              >
+                <option value="">Не вказано</option>
+                <option value="Makita">Makita</option>
+                <option value="Metabo">Metabo</option>
+                <option value="Oleo-Mac">Oleo-Mac</option>
+                <option value="Huinday">Huinday</option>
+                <option value="AL-KO">AL-KO</option>
+                <option value="Квітка">Квітка</option>
+                <option value="GTM">GTM</option>
+                 <option value="Enersol">Enersol</option>
+                  <option value="Karcher">Karcher</option>
+              </select>
+            </div>
         {role === "master" && (
           <>
             <div className={styles.formInput}>
@@ -300,6 +318,10 @@ export default function CertificateForm({
                 <option value="Makita">Makita</option>
                 <option value="Metabo">Metabo</option>
                 <option value="Oleo-Mac">Oleo-Mac</option>
+                <option value="Huinday">Huinday</option>
+                <option value="AL-KO">AL-KO</option>
+                <option value="Квітка">Квітка</option>
+                <option value="GTM">GTM</option>
               </select>
             </div>
 
