@@ -237,6 +237,15 @@ export default function CertificateForm({
                  <option value="Enersol">Enersol</option>
                   <option value="Karcher">Karcher</option>
               </select>
+            </div><div className={styles.formInput}>
+              <label>Запчастини</label>
+              <input
+                className={styles.formLabel}
+                value={part}
+                type="text"
+                onChange={(e) => setPart(e.target.value)}
+              >
+              </input>
             </div>
         {role === "master" && (
           <>
