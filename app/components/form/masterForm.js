@@ -66,13 +66,17 @@ export default function CertificateForm({
       toast.error("Номер ремонту обовʼязковий");
       return;
     }
+    if (part === "") {
+      toast.error("Не вказані потрібні запчастини");
+      return;
+    }
 
     if (role === "master") {
       if (
         !warrantyVerdict ||
         (masterFiles.length === 0 && !initialData?.masterImages?.length)
       ) {
-        toast.error("Майстер повинен додати фото і вердикт");
+        toast.error("Майстер повинен додати фото і вказати рішення по гарантії");
         return;
       }
     }

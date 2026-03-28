@@ -59,19 +59,19 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
       </div>
 
       <ul className={styles.sidebarContentBlock}>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Дата створення</p>
           <span>{formatDate(item.createdAt)}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Талон</p>
           <span>{item.certificateNumber || "Не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Автор</p>
           <span>{item.createdBy || "Не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Продаж</p>
           <span>{formatDate(item.saleDate) || "Не вказано"}</span>
         </li>
@@ -79,26 +79,30 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
           <p>Клієнт</p>
           <span>{item.reporting || "Не вказано"}</span>
         </li>
-        <li>
+         <li classname={styles.sidebarItem}>
+          <p>Запчастини</p>
+          <span>{item.part || "Не вказано"}</span>
+        </li>
+        <li classname={styles.sidebarItem}>
           <p>Менеджер</p>
           <span>{item.manager || "Не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Майстер</p>
           <span>{item.master || "Не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Коментар</p>
           <span className={styles.masterComment}>{item.masterComment || "Не вказано"}</span>
         </li>
         <li>
           <p>Рішення:</p> <span>{item.warrantyVerdict || "не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Дата затвердження:</p>{" "}
           <span>{formatDate(item.fixationDate) || "не вказано"}</span>
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Фото майстра:</p>
           {item.masterImages && item.masterImages.length > 0 ? (
             item.masterImages.map((img, idx) => (
@@ -115,7 +119,7 @@ const Sidebar = ({ item, isOpen, onClose, onUpdate, onDelete, onEdit }) => {
             <span>Відсутні</span>
           )}
         </li>
-        <li>
+        <li classname={styles.sidebarItem}>
           <p>Фото менеджера:</p>
           {item?.imageUrl ? (
             <a href={item.imageUrl} target="_blank" rel="noopener noreferrer">

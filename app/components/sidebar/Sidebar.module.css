@@ -41,7 +41,9 @@
 
 .sidebarContentBlock li {
   display: flex;
+  justify-content:space-between;
   list-style-type: none;
+
   border-bottom: 1px solid grey;
   width: 250px;
    display: flex;
